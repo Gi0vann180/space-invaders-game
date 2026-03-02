@@ -31,7 +31,16 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+This project follows the repository constitution. Every plan MUST declare how it satisfies the
+applicable principles below (non-negotiable gates):
+
+- TypeScript enabled and type-check strategy defined (or justification for legacy JS).
+- Linting/formatting config present (ESLint + Prettier) and the plan includes enforcement steps.
+- Testing strategy: unit tests for game logic, component tests for critical UI, E2E plan for main journeys.
+- Accessibility considerations included for UI/menus and keyboard controls.
+- Performance targets and measurement approach (target 60 FPS typical gameplay) with mitigation steps.
+
+Each item above MUST be mapped to concrete tasks in `tasks.md` and verified during the Phase 0/1 checkpoints.
 
 ## Project Structure
 

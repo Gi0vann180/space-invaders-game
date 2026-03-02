@@ -1,0 +1,14 @@
+/node_modules
+/frontend/node_modules
+/dist
+.env
+.vscode
+.DS_Store
+build/
+coverage/
+*.log
+.env*
+Thumbs.db
+*.tmp
+*.swp
+.idea/

@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "typecheck": "npm --prefix frontend run typecheck",
+    "lint": "npm --prefix frontend run lint",
+    "test": "npm --prefix frontend run test",
+    "test:e2e": "npm --prefix frontend run test:e2e",
+    "validate": "npm --prefix frontend run validate"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.4"
+  }
+}

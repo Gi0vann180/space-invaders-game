@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  title: Space Invaders Leaderboard (Optional)
+  version: '1.0.0'
+paths:
+  /leaderboard:
+    get:
+      summary: Get top highscores
+      responses:
+        '200':
+          description: List of highscores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HighScore'
+    post:
+      summary: Submit a new highscore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HighScore'
+      responses:
+        '201':
+          description: Highscore saved
+components:
+  schemas:
+    HighScore:
+      type: object
+      properties:
+        playerName:
+          type: string
+        score:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - score

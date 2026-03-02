@@ -51,6 +51,13 @@ description: "Task list template for feature implementation"
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
 - [ ] T003 [P] Configure linting and formatting tools
+- [ ] T001 Create project structure per implementation plan (frontend: `src/`, `public/`)
+- [ ] T002 Initialize TypeScript + React project (Vite recommended)
+- [ ] T003 [P] Configure ESLint + Prettier and repository shared config
+- [ ] T004 [P] Configure testing: Vitest or Jest + React Testing Library
+- [ ] T005 [P] Setup E2E testing skeleton (Playwright) with one smoke test
+- [ ] T006 [P] Setup CI pipeline to run typecheck, lint, unit tests, and E2E smoke checks
+- [ ] T007 Configure Husky pre-commit hooks for linting and tests
 
 ---
 
