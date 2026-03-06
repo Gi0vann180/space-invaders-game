@@ -20,6 +20,8 @@ export type PermanentUpgradePurchaseResult =
     }
 
 export const MAX_UPGRADE_LEVEL = 10
+export const MAX_LIVES_PER_STAGE = 3
+export const EXTRA_LIFE_COST_POINTS = 120
 
 export const EMPTY_UPGRADE_LEVELS: UpgradeLevels = {
   'upgrade-fire-rate': 0,
@@ -147,4 +149,32 @@ export function purchasePermanentUpgrade(
 
 export function listActiveUpgrades(upgradeLevels: UpgradeLevels): ShopItemId[] {
   return (Object.keys(upgradeLevels) as ShopItemId[]).filter((itemId) => upgradeLevels[itemId] > 0)
+}
+
+export function canPurchaseExtraLife(score: number, lives: number): boolean {
+  if (lives >= MAX_LIVES_PER_STAGE) {
+    return false
+  }
+
+  return score >= EXTRA_LIFE_COST_POINTS
+}
+
+export function purchaseExtraLife(score: number, lives: number): {
+  score: number
+  lives: number
+  purchased: boolean
+} {
+  if (!canPurchaseExtraLife(score, lives)) {
+    return {
+      score,
+      lives,
+      purchased: false
+    }
+  }
+
+  return {
+    score: score - EXTRA_LIFE_COST_POINTS,
+    lives: Math.min(MAX_LIVES_PER_STAGE, lives + 1),
+    purchased: true
+  }
 }

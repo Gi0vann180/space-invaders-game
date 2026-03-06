@@ -2,12 +2,20 @@ import { createPowerUp, type PowerUpInstance, type PowerUpType } from '../entiti
 import { MAX_UPGRADE_LEVEL, type ShopItemId } from '../../services/shopService'
 import { POWER_UPS } from '../config/powerups'
 
+function hasPowerUpConfig(type: string): type is PowerUpType {
+  return Object.prototype.hasOwnProperty.call(POWER_UPS, type)
+}
+
 export function addOrRefreshPowerUp(
   activePowerUps: PowerUpInstance[],
   type: PowerUpType,
   nowMs: number,
   durationSeconds?: number
 ): PowerUpInstance[] {
+  if (!hasPowerUpConfig(type)) {
+    return activePowerUps
+  }
+
   const config = POWER_UPS[type]
   const configuredDuration = durationSeconds ?? config.durationSeconds
   const nextPowerUp = createPowerUp(type, nowMs, configuredDuration, config.conflictGroup)

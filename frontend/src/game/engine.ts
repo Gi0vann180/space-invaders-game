@@ -27,11 +27,11 @@ import {
 } from './systems/collisionSystem'
 import { emitBossProjectiles } from './systems/bossAttackSystem'
 import { spawnBossForWave, tickBoss } from './systems/bossSystem'
-import { removeExpiredDrops, stepDrops } from './systems/dropSystem'
+import { removeExpiredDrops, resolveCollectedSpecialShot, stepDrops } from './systems/dropSystem'
 import { createShopRunModifierOffer, evaluateStageProgression } from './systems/progressionSystem'
-import { addOrRefreshPowerUp, getActiveWeaponPowerUp, hasActivePowerUp, removeExpiredPowerUps } from './systems/powerUpSystem'
+import { addOrRefreshPowerUp, getActiveWeaponPowerUp, removeExpiredPowerUps } from './systems/powerUpSystem'
 import { updateScoreAndLives } from './systems/scoreLivesSystem'
-import { applyPlayerUpgrades, getShieldLevel, hasShieldUpgrade } from './systems/upgradeSystem'
+import { applyPlayerUpgrades } from './systems/upgradeSystem'
 import {
   applyWaveEnemies,
   createDropsFromDefeatedEnemies,
@@ -162,19 +162,16 @@ function update(deltaSeconds: number): void {
   }
   projectiles = bossCollisionResult.projectiles
 
-  const playerHitResult = resolveEnemyProjectileHitsPlayer(
-    player,
-    projectiles,
-    deltaSeconds,
-    hasActivePowerUp(activePowerUps, 'shield')
-  )
+  const playerHitResult = resolveEnemyProjectileHitsPlayer(player, projectiles, deltaSeconds, false)
   projectiles = playerHitResult.projectiles
 
   const dropCollision = resolvePlayerDropCollisions(player, activeDrops)
   activeDrops = dropCollision.drops
   if (dropCollision.collectedShots.length > 0) {
     for (const shotType of dropCollision.collectedShots) {
-      activePowerUps = addOrRefreshPowerUp(activePowerUps, shotType, nowMs)
+      const currentWeapon = getActiveWeaponPowerUp(activePowerUps)
+      const resolvedShot = resolveCollectedSpecialShot(shotType, currentWeapon)
+      activePowerUps = addOrRefreshPowerUp(activePowerUps, resolvedShot, nowMs)
     }
   }
 
@@ -386,13 +383,6 @@ export function startRound(): void {
   currentRunSeed = `${nextRunOrdinal}-${Date.now()}-${state.highScore}`
 
   player = applyPlayerUpgrades(player, state.upgradeLevels)
-
-  if (hasShieldUpgrade(state.upgradeLevels)) {
-    const shieldLevel = getShieldLevel(state.upgradeLevels)
-    gameStore.setState({
-      lives: Math.max(state.lives, 3 + shieldLevel)
-    })
-  }
 
   gameStore.setState({
     status: 'running'

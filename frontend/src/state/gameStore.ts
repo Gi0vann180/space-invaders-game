@@ -48,8 +48,6 @@ class GameStore {
     this.state = {
       ...initialState,
       highScore: this.state.highScore,
-      upgradeLevels: this.state.upgradeLevels,
-      activeUpgrades: this.state.activeUpgrades,
       progressionProfile: this.state.progressionProfile,
       activeDrops: []
     }

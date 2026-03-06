@@ -14,6 +14,17 @@ export function pickRandomSpecialShot(seed: number): Extract<TemporaryPowerUpTyp
   return SPECIAL_SHOTS[index]
 }
 
+export function resolveCollectedSpecialShot(
+  pickedShot: Extract<TemporaryPowerUpType, 'laser' | 'homing-missile'>,
+  activeWeapon: TemporaryPowerUpType | null
+): Extract<TemporaryPowerUpType, 'laser' | 'homing-missile'> {
+  if (activeWeapon !== pickedShot) {
+    return pickedShot
+  }
+
+  return pickedShot === 'laser' ? 'homing-missile' : 'laser'
+}
+
 export function spawnRareDrop(input: {
   enemyId: string
   x: number

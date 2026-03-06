@@ -6,7 +6,7 @@ export const RARE_DROP_LIFETIME_MS = 8000
 
 export const BOSS_HORIZONTAL_SPEED = 90
 
-export const CYCLE_DIFFICULTY_STEP = 0.2
+export const CYCLE_DIFFICULTY_STEP = 0.1
 
 export function isBossStage(stage: number): boolean {
   if (stage < 1) {

@@ -15,9 +15,7 @@ import {
 import { useVisibilityPause } from './hooks/useVisibilityPause'
 import { setTelemetryConsent } from './lib/telemetry'
 import {
-  getPersistedProgressProfile,
-  getPersistedUpgradeLevels,
-  savePersistedUpgradeLevels
+  getPersistedProgressProfile
 } from './services/shopPersistenceService'
 import { loadSettings, saveSettings } from './services/settingsService'
 import { EMPTY_UPGRADE_LEVELS, listActiveUpgrades, type UpgradeLevels } from './services/shopService'
@@ -50,6 +48,7 @@ export default function App() {
     }
 
     if (gameState.status === 'game-over') {
+      setUpgradeLevels({ ...EMPTY_UPGRADE_LEVELS })
       restartRound()
     }
   }, [gameState.status])
@@ -76,7 +75,8 @@ export default function App() {
       setSettings(nextSettings)
     })
 
-    void Promise.all([getPersistedUpgradeLevels(), getPersistedProgressProfile()]).then(([levels, profile]) => {
+    void getPersistedProgressProfile().then((profile) => {
+      const levels = { ...EMPTY_UPGRADE_LEVELS }
       setUpgradeLevels(levels)
       gameStore.setState({
         upgradeLevels: levels,
@@ -158,6 +158,7 @@ export default function App() {
             {gameState.status === 'shop' ? (
               <ShopScreen
                 score={gameState.score}
+                lives={gameState.lives}
                 upgradeLevels={upgradeLevels}
                 runModifierOffer={gameState.runModifierOffer}
                 onSelectRunModifier={(modifierId) => {
@@ -182,10 +183,14 @@ export default function App() {
                     activeUpgrades: listActiveUpgrades(nextUpgradeLevels)
                   })
                 }}
+                onPurchaseExtraLife={(nextScore, nextLives) => {
+                  gameStore.setState({
+                    score: nextScore,
+                    lives: nextLives
+                  })
+                }}
                 onContinue={() => {
-                  const currentLevels = gameStore.getState().upgradeLevels
-                  void savePersistedUpgradeLevels(currentLevels)
-                  continueToNextStage(currentLevels)
+                  continueToNextStage(gameStore.getState().upgradeLevels)
                 }}
               />
             ) : null}
