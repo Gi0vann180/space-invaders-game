@@ -33,3 +33,12 @@ export function spawnRareDrop(input: {
 export function removeExpiredDrops(drops: RareDropEntity[], nowMs: number): RareDropEntity[] {
   return drops.filter((drop) => !isDropExpired(drop, nowMs))
 }
+
+export function stepDrops(drops: RareDropEntity[], deltaSeconds: number, canvasHeight: number): RareDropEntity[] {
+  return drops
+    .map((drop) => ({
+      ...drop,
+      y: drop.y + drop.speedY * deltaSeconds
+    }))
+    .filter((drop) => drop.y <= canvasHeight)
+}

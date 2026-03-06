@@ -7,6 +7,7 @@ export type RareDropEntity = {
   y: number
   width: number
   height: number
+  speedY: number
   sourceEnemyId: string
   spawnedAtMs: number
   expiresAtMs: number
@@ -27,6 +28,7 @@ export function createRareDrop(input: {
     y: input.y,
     width: 12,
     height: 12,
+    speedY: 120,
     spawnedAtMs: input.nowMs,
     expiresAtMs: input.nowMs + RARE_DROP_LIFETIME_MS,
     grantedShotType: input.grantedShotType

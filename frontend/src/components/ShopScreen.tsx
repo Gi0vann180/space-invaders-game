@@ -27,8 +27,8 @@ export function ShopScreen({
   onContinue
 }: ShopScreenProps) {
   return (
-    <div className="absolute inset-0 z-40 grid place-items-center bg-slate-950/95 p-4">
-      <div className="w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-5 text-slate-100">
+    <div className="absolute inset-0 z-40 overflow-y-auto bg-slate-950/95 p-4">
+      <div className="mx-auto w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-5 text-slate-100 max-h-[88vh] overflow-y-auto">
         <h2 className="mb-2 text-2xl font-semibold">Loja da fase</h2>
         <p className="mb-4 text-sm text-slate-300">Pontos disponíveis: {score}</p>
         <ul className="space-y-3">
@@ -87,7 +87,7 @@ export function ShopScreen({
             </ul>
           </div>
         ) : null}
-        <div className="mt-4 flex justify-end">
+        <div className="sticky bottom-0 mt-4 flex justify-end border-t border-slate-800 bg-slate-900/95 pt-3">
           <button className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium" onClick={onContinue} type="button">
             Próxima fase
           </button>

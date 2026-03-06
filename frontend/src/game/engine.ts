@@ -27,7 +27,7 @@ import {
 } from './systems/collisionSystem'
 import { emitBossProjectiles } from './systems/bossAttackSystem'
 import { spawnBossForWave, tickBoss } from './systems/bossSystem'
-import { removeExpiredDrops } from './systems/dropSystem'
+import { removeExpiredDrops, stepDrops } from './systems/dropSystem'
 import { createShopRunModifierOffer, evaluateStageProgression } from './systems/progressionSystem'
 import { addOrRefreshPowerUp, getActiveWeaponPowerUp, hasActivePowerUp, removeExpiredPowerUps } from './systems/powerUpSystem'
 import { updateScoreAndLives } from './systems/scoreLivesSystem'
@@ -106,6 +106,7 @@ function update(deltaSeconds: number): void {
 
   let activePowerUps = removeExpiredPowerUps(state.activePowerUps, nowMs)
   activeDrops = removeExpiredDrops(activeDrops, nowMs)
+  activeDrops = stepDrops(activeDrops, deltaSeconds, context.canvas.height)
 
   player = tickPlayer(player, deltaSeconds)
   player = movePlayer(player, input.horizontal, deltaSeconds, context.canvas.width)

@@ -1,6 +1,6 @@
 export const BOSS_STAGE_INTERVAL = 10
 
-export const RARE_DROP_CHANCE_PERCENT = 5
+export const RARE_DROP_CHANCE_PERCENT = 8
 
 export const RARE_DROP_LIFETIME_MS = 8000
 
