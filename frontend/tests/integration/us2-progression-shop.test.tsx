@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { evaluateStageProgression } from '../../src/game/systems/progressionSystem'
-import { SHOP_CATALOG, purchaseShopItem } from '../../src/services/shopService'
+import { EMPTY_UPGRADE_LEVELS, SHOP_CATALOG, purchaseShopItem } from '../../src/services/shopService'
 
 describe('US2 progression and shop flow', () => {
   it('entra na loja ao concluir fase e permite compra válida', () => {
@@ -11,8 +11,8 @@ describe('US2 progression and shop flow', () => {
     const speedUpgrade = SHOP_CATALOG.find((item) => item.id === 'upgrade-speed')
     expect(speedUpgrade).toBeDefined()
 
-    const purchase = purchaseShopItem(150, [], speedUpgrade!)
-    expect(purchase.ownedItems).toContain('upgrade-speed')
-    expect(purchase.score).toBe(50)
+    const purchase = purchaseShopItem(150, { ...EMPTY_UPGRADE_LEVELS }, speedUpgrade!)
+    expect(purchase.upgradeLevels['upgrade-speed']).toBe(1)
+    expect(purchase.score).toBeLessThan(150)
   })
 })

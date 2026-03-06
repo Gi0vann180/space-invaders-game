@@ -252,6 +252,7 @@ With multiple developers:
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
+- Task descriptions and implementation handoff notes MUST be in Portuguese (Brazil, pt-BR), unless explicitly overridden by the user
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently

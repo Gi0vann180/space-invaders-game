@@ -1,0 +1,254 @@
+openapi: 3.0.3
+info:
+  title: Boss Cycle and Rare Drops Contract
+  version: 0.1.0
+  description: >-
+    Contrato de referencia para ciclo de fases com boss em multiplos de 10,
+    combate de boss (dano/morte/transicao), e drops raros que concedem tiro
+    especial aleatorio.
+servers:
+  - url: https://example.local
+paths:
+  /game-sessions/{sessionId}/stages/{stageNumber}/progression:
+    get:
+      summary: Consulta estado de progressao da fase atual
+      operationId: getStageProgression
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: stageNumber
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Estado de progressao da fase
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageProgression'
+  /game-sessions/{sessionId}/bosses/{bossId}/damage:
+    post:
+      summary: Aplica dano no boss ativo
+      operationId: applyBossDamage
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: bossId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyBossDamageRequest'
+      responses:
+        '200':
+          description: Boss atualizado apos dano
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BossEncounter'
+  /game-sessions/{sessionId}/bosses/{bossId}/defeat:
+    post:
+      summary: Resolve derrota de boss e retorna proxima fase
+      operationId: resolveBossDefeat
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: bossId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Boss derrotado e fase avancada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BossDefeatResult'
+  /game-sessions/{sessionId}/enemies/{enemyId}/drop-roll:
+    post:
+      summary: Avalia drop raro na derrota de inimigo comum
+      operationId: rollRareDrop
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: enemyId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RareDropRollRequest'
+      responses:
+        '200':
+          description: Resultado da rolagem de drop raro
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RareDropRollResult'
+  /game-sessions/{sessionId}/drops/{dropId}/collect:
+    post:
+      summary: Coleta bolinha de drop e concede tiro especial aleatorio
+      operationId: collectRareDrop
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: dropId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Drop coletado e tiro concedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialShotGrant'
+components:
+  schemas:
+    StageProgression:
+      type: object
+      required: [stageNumber, cycleIndex, isBossStage, status, nextStageNumber]
+      properties:
+        stageNumber:
+          type: integer
+          minimum: 1
+        cycleIndex:
+          type: integer
+          minimum: 0
+        isBossStage:
+          type: boolean
+        status:
+          type: string
+          enum: [regular-combat, boss-fight, completed]
+        nextStageNumber:
+          type: integer
+          minimum: 2
+    BossEncounter:
+      type: object
+      required: [bossId, stageNumber, maxHealth, currentHealth, moveSpeed, velocityX, state]
+      properties:
+        bossId:
+          type: string
+        stageNumber:
+          type: integer
+          minimum: 1
+        maxHealth:
+          type: integer
+          minimum: 1
+        currentHealth:
+          type: integer
+          minimum: 0
+        moveSpeed:
+          type: number
+          minimum: 0
+        velocityX:
+          type: number
+        state:
+          type: string
+          enum: [active, defeated]
+    ApplyBossDamageRequest:
+      type: object
+      required: [damage]
+      properties:
+        damage:
+          type: integer
+          minimum: 1
+    BossDefeatResult:
+      type: object
+      required: [bossId, defeated, completedStageNumber, nextStageNumber]
+      properties:
+        bossId:
+          type: string
+        defeated:
+          type: boolean
+        completedStageNumber:
+          type: integer
+          minimum: 1
+        nextStageNumber:
+          type: integer
+          minimum: 2
+    RareDropRollRequest:
+      type: object
+      required: [dropChancePercent, seed]
+      properties:
+        dropChancePercent:
+          type: number
+          minimum: 0.1
+          maximum: 100
+        seed:
+          type: integer
+          minimum: 0
+    RareDropRollResult:
+      type: object
+      required: [enemyId, dropped, drop]
+      properties:
+        enemyId:
+          type: string
+        dropped:
+          type: boolean
+        drop:
+          oneOf:
+            - $ref: '#/components/schemas/RareDropItem'
+            - type: 'null'
+    RareDropItem:
+      type: object
+      required: [dropId, x, y, spawnedAtMs, expiresAtMs, state]
+      properties:
+        dropId:
+          type: string
+        x:
+          type: number
+        y:
+          type: number
+        spawnedAtMs:
+          type: integer
+          minimum: 1
+        expiresAtMs:
+          type: integer
+          minimum: 2
+        state:
+          type: string
+          enum: [active, collected, expired]
+    SpecialShotGrant:
+      type: object
+      required: [grantId, dropId, grantedShotType, grantedAtMs]
+      properties:
+        grantId:
+          type: string
+        dropId:
+          type: string
+        grantedShotType:
+          type: string
+          enum: [laser, homing-missile, burst-shot]
+        grantedAtMs:
+          type: integer
+          minimum: 1

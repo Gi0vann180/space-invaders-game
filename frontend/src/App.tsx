@@ -14,9 +14,15 @@ import {
 } from './game/engine'
 import { useVisibilityPause } from './hooks/useVisibilityPause'
 import { setTelemetryConsent } from './lib/telemetry'
-import { getPersistedUpgrades, savePersistedUpgrades } from './services/shopPersistenceService'
+import {
+  getPersistedProgressProfile,
+  getPersistedUpgradeLevels,
+  savePersistedUpgradeLevels
+} from './services/shopPersistenceService'
 import { loadSettings, saveSettings } from './services/settingsService'
-import type { ShopItemId } from './services/shopService'
+import { EMPTY_UPGRADE_LEVELS, listActiveUpgrades, type UpgradeLevels } from './services/shopService'
+import { applyRunModifierSelection, type RunModifierId } from './game/systems/runModifierSystem'
+import { isBossStage } from './game/config/gameplay'
 import { gameStore } from './state/gameStore'
 import { settingsStore, type GameSettings } from './state/settingsStore'
 import type { GameSessionState } from './game/types'
@@ -26,7 +32,11 @@ export default function App() {
   const [gameState, setGameState] = useState<GameSessionState>(gameStore.getState())
   const [settings, setSettings] = useState<GameSettings>(settingsStore.getState())
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const [ownedUpgrades, setOwnedUpgrades] = useState<ShopItemId[]>([])
+  const [upgradeLevels, setUpgradeLevels] = useState<UpgradeLevels>({ ...EMPTY_UPGRADE_LEVELS })
+
+  if (typeof window !== 'undefined') {
+    ;(window as Window & { __GAME_STORE__?: typeof gameStore }).__GAME_STORE__ = gameStore
+  }
 
   const handlePrimaryOverlayAction = useCallback(() => {
     if (gameState.status === 'idle') {
@@ -66,9 +76,16 @@ export default function App() {
       setSettings(nextSettings)
     })
 
-    void getPersistedUpgrades().then((upgrades) => {
-      setOwnedUpgrades(upgrades)
-      gameStore.setState({ activeUpgrades: upgrades })
+    void Promise.all([getPersistedUpgradeLevels(), getPersistedProgressProfile()]).then(([levels, profile]) => {
+      setUpgradeLevels(levels)
+      gameStore.setState({
+        upgradeLevels: levels,
+        activeUpgrades: listActiveUpgrades(levels),
+        progressionProfile: {
+          highestUnlockedStage: profile.highestUnlockedStage,
+          totalRuns: profile.totalRuns
+        }
+      })
     })
 
     void loadSettings().then((savedSettings) => {
@@ -118,25 +135,57 @@ export default function App() {
               lives={gameState.lives}
               stage={gameState.stage}
               highScore={gameState.highScore}
+              bossHealth={gameState.bossEncounter.active ? gameState.bossEncounter.health : undefined}
+              bossMaxHealth={gameState.bossEncounter.active ? gameState.bossEncounter.maxHealth : undefined}
               captionsEnabled={settings.captionsEnabled}
-              statusLabel={gameState.status === 'running' ? undefined : gameState.status}
+              statusLabel={
+                gameState.status === 'running'
+                  ? isBossStage(gameState.stage)
+                    ? 'boss na fase'
+                    : undefined
+                  : gameState.status
+              }
             />
             <canvas ref={canvasRef} width={800} height={480} className="w-full h-auto rounded bg-black" />
-            <GameOverlay status={gameState.status} onPrimaryAction={handlePrimaryOverlayAction} />
+            <GameOverlay
+              status={gameState.status}
+              activePowerUps={gameState.activePowerUps}
+              bossHealth={gameState.bossEncounter.active ? gameState.bossEncounter.health : undefined}
+              bossMaxHealth={gameState.bossEncounter.active ? gameState.bossEncounter.maxHealth : undefined}
+              nowMs={Date.now()}
+              onPrimaryAction={handlePrimaryOverlayAction}
+            />
             {gameState.status === 'shop' ? (
               <ShopScreen
                 score={gameState.score}
-                ownedItems={ownedUpgrades}
-                onPurchase={(nextScore, nextOwnedItems) => {
-                  setOwnedUpgrades(nextOwnedItems)
+                upgradeLevels={upgradeLevels}
+                runModifierOffer={gameState.runModifierOffer}
+                onSelectRunModifier={(modifierId) => {
+                  const nextUpgradeLevels = applyRunModifierSelection(upgradeLevels, modifierId as RunModifierId)
+                  setUpgradeLevels(nextUpgradeLevels)
+                  gameStore.setState({
+                    upgradeLevels: nextUpgradeLevels,
+                    activeUpgrades: listActiveUpgrades(nextUpgradeLevels),
+                    runModifierOffer: gameState.runModifierOffer
+                      ? {
+                          ...gameState.runModifierOffer,
+                          selectedModifierId: modifierId
+                        }
+                      : null
+                  })
+                }}
+                onPurchase={(nextScore, nextUpgradeLevels) => {
+                  setUpgradeLevels(nextUpgradeLevels)
                   gameStore.setState({
                     score: nextScore,
-                    activeUpgrades: nextOwnedItems
+                    upgradeLevels: nextUpgradeLevels,
+                    activeUpgrades: listActiveUpgrades(nextUpgradeLevels)
                   })
                 }}
                 onContinue={() => {
-                  void savePersistedUpgrades(ownedUpgrades)
-                  continueToNextStage(ownedUpgrades)
+                  const currentLevels = gameStore.getState().upgradeLevels
+                  void savePersistedUpgradeLevels(currentLevels)
+                  continueToNextStage(currentLevels)
                 }}
               />
             ) : null}

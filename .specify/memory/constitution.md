@@ -1,20 +1,17 @@
 <!--
 Sync Impact Report
 
-- Version change: [unreleased] -> 1.0.0
+- Version change: 1.0.0 -> 1.1.0
 - Modified principles:
-	- (new) Clean Code & Architecture
-	- (new) Component-Driven UI & Separation of Concerns
-	- (new) Predictable State & Game Loop
-	- (new) Testing, CI & Quality Gates
-	- (new) Accessibility, Performance & Observability
-- Added sections: Technology Constraints, Development Workflow
+	- (new) Colaboração em Português do Brasil (pt-BR)
+- Added sections: none
 - Removed sections: none
 - Templates requiring updates:
 	- .specify/templates/plan-template.md ✅ updated
 	- .specify/templates/spec-template.md ✅ updated
 	- .specify/templates/tasks-template.md ✅ updated
-	- .specify/templates/agent-file-template.md ⚠ pending (informational)
+	- .specify/templates/agent-file-template.md ✅ reviewed (no change required)
+	- .specify/templates/commands/*.md ⚠ pending (directory not present in workspace)
 - Follow-up TODOs:
 	- RATIFICATION_DATE must be confirmed and replaced (TODO(RATIFICATION_DATE))
 -->
@@ -55,6 +52,12 @@ The game MUST be accessible and performant for broad browser support.
  - Performance target: maintain 60 FPS during typical gameplay; measure with simple FPS telemetry in dev builds.
  - Add structured logging for critical runtime errors; non-sensitive telemetry MAY be collected behind an opt-in flag.
 
+### 6. Colaboração em Português do Brasil (pt-BR)
+Interações entre agentes/automação do projeto e o solicitante principal MUST ocorrer em português do Brasil.
+ - Respostas em inglês só são permitidas quando explicitamente solicitadas pelo usuário na mesma conversa.
+ - Termos técnicos podem permanecer no idioma original quando a tradução prejudicar precisão, mas a explicação MUST ser em pt-BR.
+ - Artefatos gerados para comunicação com o solicitante (resumos, status, handoff e instruções) MUST ser em pt-BR.
+
 ## Technology Constraints
 This project targets a modern browser React frontend and enforces a minimal, opinionated stack to ensure consistency.
  - Core: React (v18+) + TypeScript
@@ -79,6 +82,7 @@ Amendments to this constitution MUST follow the process below:
 	 - MAJOR: Backward-incompatible principle removals or redefinitions.
 	 - MINOR: New principle/section added or materially expanded guidance.
 	 - PATCH: Clarifications, wording, typos, or non-semantic refinements.
+ - Communication language policy: compliance reviews MUST verify pt-BR communication in agent responses and handoff notes unless explicit override is requested by the user.
  - Compliance: All feature plans and PRs MUST reference this constitution and indicate how they satisfy applicable principles (see `Constitution Check` in plan templates).
 
-**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-02-02
+**Version**: 1.1.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-02

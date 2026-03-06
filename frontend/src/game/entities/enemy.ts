@@ -6,6 +6,8 @@ export type EnemyEntity = {
   height: number
   health: number
   points: number
+  fireCooldownSeconds: number
+  fireTimer: number
 }
 
 export function createEnemyGrid(stage: number): EnemyEntity[] {
@@ -22,10 +24,30 @@ export function createEnemyGrid(stage: number): EnemyEntity[] {
         width: 36,
         height: 24,
         health: 1,
-        points: 10 + row * 5
+        points: 10 + row * 5,
+        fireCooldownSeconds: 1.8,
+        fireTimer: (row + col) * 0.04
       })
     }
   }
 
   return enemies
+}
+
+export function tickEnemyFire(enemy: EnemyEntity, deltaSeconds: number): EnemyEntity {
+  return {
+    ...enemy,
+    fireTimer: Math.max(0, enemy.fireTimer - deltaSeconds)
+  }
+}
+
+export function canEnemyFire(enemy: EnemyEntity): boolean {
+  return enemy.fireTimer <= 0
+}
+
+export function consumeEnemyShot(enemy: EnemyEntity): EnemyEntity {
+  return {
+    ...enemy,
+    fireTimer: enemy.fireCooldownSeconds
+  }
 }

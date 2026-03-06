@@ -1,0 +1,240 @@
+openapi: 3.0.3
+info:
+  title: Gameplay Progression Contract
+  version: 0.1.0
+  description: >-
+    Contrato de referência para operações de sessão, progressão de fase,
+    disparo inimigo e compra de melhorias com nível máximo 10.
+servers:
+  - url: https://example.local
+paths:
+  /game-sessions:
+    post:
+      summary: Inicia nova sessão de jogo
+      operationId: createGameSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGameSessionRequest'
+      responses:
+        '201':
+          description: Sessão criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSession'
+  /game-sessions/{sessionId}/enemy-shots/emit:
+    post:
+      summary: Processa emissão de disparos inimigos do tick atual
+      operationId: emitEnemyShots
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnemyShotEmitRequest'
+      responses:
+        '200':
+          description: Lista de projéteis gerados no tick
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projectiles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EnemyProjectile'
+  /game-sessions/{sessionId}/phases/advance:
+    post:
+      summary: Avança para a próxima fase e aplica dificuldade
+      operationId: advancePhase
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fase avançada com parâmetros de dificuldade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseAdvanceResponse'
+  /game-sessions/{sessionId}/upgrades/{upgradeId}/purchase:
+    post:
+      summary: Compra melhoria e incrementa nível em +1 até 10
+      operationId: purchaseUpgrade
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: upgradeId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseUpgradeRequest'
+      responses:
+        '200':
+          description: Compra aplicada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpgradePurchaseResult'
+        '409':
+          description: Nível máximo atingido (10)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpgradePurchaseBlocked'
+components:
+  schemas:
+    CreateGameSessionRequest:
+      type: object
+      required: [playerId]
+      properties:
+        playerId:
+          type: string
+    GameSession:
+      type: object
+      required: [sessionId, currentPhase, playerLives, score, upgradeLevels]
+      properties:
+        sessionId:
+          type: string
+        currentPhase:
+          type: integer
+          minimum: 1
+        playerLives:
+          type: integer
+          minimum: 0
+        score:
+          type: integer
+          minimum: 0
+        upgradeLevels:
+          $ref: '#/components/schemas/UpgradeLevels'
+    EnemyShotEmitRequest:
+      type: object
+      required: [tickMs, aliveEnemyIds, phaseNumber]
+      properties:
+        tickMs:
+          type: integer
+          minimum: 1
+        aliveEnemyIds:
+          type: array
+          items:
+            type: string
+        phaseNumber:
+          type: integer
+          minimum: 1
+    EnemyProjectile:
+      type: object
+      required: [projectileId, enemyId, speed, damage]
+      properties:
+        projectileId:
+          type: string
+        enemyId:
+          type: string
+        speed:
+          type: number
+          minimum: 0
+        damage:
+          type: integer
+          minimum: 1
+    PhaseAdvanceResponse:
+      type: object
+      required: [fromPhase, toPhase, difficulty]
+      properties:
+        fromPhase:
+          type: integer
+          minimum: 1
+        toPhase:
+          type: integer
+          minimum: 2
+        difficulty:
+          $ref: '#/components/schemas/PhaseDifficulty'
+    PhaseDifficulty:
+      type: object
+      required:
+        [enemyFireRateMultiplier, enemyProjectileSpeedMultiplier, maxConcurrentEnemyProjectiles]
+      properties:
+        enemyFireRateMultiplier:
+          type: number
+          minimum: 1
+        enemyProjectileSpeedMultiplier:
+          type: number
+          minimum: 1
+        maxConcurrentEnemyProjectiles:
+          type: integer
+          minimum: 1
+    PurchaseUpgradeRequest:
+      type: object
+      required: [playerCurrency]
+      properties:
+        playerCurrency:
+          type: integer
+          minimum: 0
+    UpgradePurchaseResult:
+      type: object
+      required: [upgradeId, previousLevel, newLevel, applied]
+      properties:
+        upgradeId:
+          type: string
+        previousLevel:
+          type: integer
+          minimum: 0
+          maximum: 10
+        newLevel:
+          type: integer
+          minimum: 1
+          maximum: 10
+        applied:
+          type: boolean
+          enum: [true]
+    UpgradePurchaseBlocked:
+      type: object
+      required: [upgradeId, level, reason, applied]
+      properties:
+        upgradeId:
+          type: string
+        level:
+          type: integer
+          enum: [10]
+        reason:
+          type: string
+          enum: [MAX_LEVEL_REACHED]
+        applied:
+          type: boolean
+          enum: [false]
+    UpgradeLevels:
+      type: object
+      required: [upgrade-fire-rate, upgrade-speed, upgrade-shield]
+      properties:
+        upgrade-fire-rate:
+          type: integer
+          minimum: 0
+          maximum: 10
+        upgrade-speed:
+          type: integer
+          minimum: 0
+          maximum: 10
+        upgrade-shield:
+          type: integer
+          minimum: 0
+          maximum: 10

@@ -1,3 +1,5 @@
+import type { UpgradeLevels } from '../services/shopService'
+
 export type Vector2 = {
   x: number
   y: number
@@ -10,6 +12,52 @@ export type InputSnapshot = {
 }
 
 export type GameStatus = 'idle' | 'running' | 'paused' | 'shop' | 'game-over'
+
+export type BossEncounterState = {
+  active: boolean
+  bossId: string | null
+  health: number
+  maxHealth: number
+}
+
+export type TemporaryPowerUpType = 'laser' | 'homing-missile' | 'shield'
+
+export type ActivePowerUpState = {
+  type: TemporaryPowerUpType
+  startedAtMs: number
+  expiresAtMs: number
+  conflictGroup: 'weapon' | 'defense'
+}
+
+export type RareDropSnapshot = {
+  id: string
+  x: number
+  y: number
+  width: number
+  height: number
+  grantedShotType: Extract<TemporaryPowerUpType, 'laser' | 'homing-missile'>
+  expiresAtMs: number
+}
+
+export type ProgressProfileSnapshot = {
+  highestUnlockedStage: number
+  totalRuns: number
+}
+
+export type RunModifierOptionSnapshot = {
+  modifierId: string
+  label: string
+  category: 'offense' | 'defense' | 'utility'
+  applicable: boolean
+}
+
+export type RunModifierOfferSnapshot = {
+  runId: string
+  stageNumber: number
+  options: RunModifierOptionSnapshot[]
+  guaranteedApplicableOption: true
+  selectedModifierId: string | null
+}
 
 export interface Player {
   id: string
@@ -40,6 +88,12 @@ export interface GameSessionState {
   stage: number
   highScore: number
   activeUpgrades: string[]
+  upgradeLevels: UpgradeLevels
+  activePowerUps: ActivePowerUpState[]
+  activeDrops: RareDropSnapshot[]
+  bossEncounter: BossEncounterState
+  progressionProfile: ProgressProfileSnapshot
+  runModifierOffer: RunModifierOfferSnapshot | null
   input: InputSnapshot
 }
 

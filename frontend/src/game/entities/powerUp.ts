@@ -1,13 +1,18 @@
-export type PowerUpType = 'double-shot' | 'shield' | 'speed'
+import type { ActivePowerUpState, TemporaryPowerUpType } from '../types'
 
-export type PowerUpInstance = {
-  type: PowerUpType
-  expiresAtMs: number
-}
+export type PowerUpType = TemporaryPowerUpType
+export type PowerUpInstance = ActivePowerUpState
 
-export function createPowerUp(type: PowerUpType, nowMs: number, durationSeconds: number): PowerUpInstance {
+export function createPowerUp(
+  type: PowerUpType,
+  nowMs: number,
+  durationSeconds: number,
+  conflictGroup: 'weapon' | 'defense'
+): PowerUpInstance {
   return {
     type,
+    startedAtMs: nowMs,
+    conflictGroup,
     expiresAtMs: nowMs + durationSeconds * 1000
   }
 }

@@ -1,4 +1,5 @@
 import { EMPTY_INPUT, type GameSessionState } from '../game/types'
+import { EMPTY_UPGRADE_LEVELS } from '../services/shopService'
 
 type GameStoreListener = (state: GameSessionState) => void
 
@@ -9,6 +10,20 @@ const initialState: GameSessionState = {
   stage: 1,
   highScore: 0,
   activeUpgrades: [],
+  upgradeLevels: { ...EMPTY_UPGRADE_LEVELS },
+  activePowerUps: [],
+  activeDrops: [],
+  bossEncounter: {
+    active: false,
+    bossId: null,
+    health: 0,
+    maxHealth: 0
+  },
+  progressionProfile: {
+    highestUnlockedStage: 1,
+    totalRuns: 0
+  },
+  runModifierOffer: null,
   input: EMPTY_INPUT
 }
 
@@ -30,7 +45,14 @@ class GameStore {
   }
 
   reset(): void {
-    this.state = initialState
+    this.state = {
+      ...initialState,
+      highScore: this.state.highScore,
+      upgradeLevels: this.state.upgradeLevels,
+      activeUpgrades: this.state.activeUpgrades,
+      progressionProfile: this.state.progressionProfile,
+      activeDrops: []
+    }
     this.listeners.forEach((listener) => listener(this.state))
   }
 

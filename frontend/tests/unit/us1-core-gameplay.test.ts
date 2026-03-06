@@ -30,7 +30,9 @@ describe('US1 core gameplay', () => {
         width: 36,
         height: 24,
         health: 1,
-        points: 10
+        points: 10,
+        fireCooldownSeconds: 1.8,
+        fireTimer: 0
       }
     ]
 
@@ -38,11 +40,13 @@ describe('US1 core gameplay', () => {
       {
         id: 'p-1',
         origin: 'player',
+        kind: 'default',
         x: 100,
         y: 80,
         width: 4,
         height: 12,
-        speedY: -400
+        speedY: -400,
+        speedX: 0
       }
     ]
 

@@ -9,6 +9,7 @@
 
 All feature specs MUST include a short mapping to the project constitution. For each applicable principle,
 state how the feature implements or satisfies it (e.g., "Testing: unit tests for collision logic included").
+Unless explicitly overridden by the user, specification narrative and stakeholder-facing notes MUST be in Portuguese (Brazil, pt-BR).
 This section is required and will be validated during plan review.
 
 ## User Scenarios & Testing *(mandatory)*

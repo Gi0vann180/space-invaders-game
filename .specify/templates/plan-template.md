@@ -39,6 +39,7 @@ applicable principles below (non-negotiable gates):
 - Testing strategy: unit tests for game logic, component tests for critical UI, E2E plan for main journeys.
 - Accessibility considerations included for UI/menus and keyboard controls.
 - Performance targets and measurement approach (target 60 FPS typical gameplay) with mitigation steps.
+- Communication and handoff language defined as Portuguese (Brazil, pt-BR), unless an explicit user override is documented.
 
 Each item above MUST be mapped to concrete tasks in `tasks.md` and verified during the Phase 0/1 checkpoints.
 

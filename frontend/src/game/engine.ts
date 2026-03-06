@@ -1,16 +1,45 @@
 import { saveLocalHighscore } from '../services/highscoreService'
-import type { ShopItemId } from '../services/shopService'
+import { logTelemetryEvent } from '../lib/telemetry'
+import { getPersistedProgressProfile, savePersistedProgressProfile } from '../services/shopPersistenceService'
+import type { UpgradeLevels } from '../services/shopService'
+import { getCycleIndex, isBossStage } from './config/gameplay'
 import { createEnemyGrid } from './entities/enemy'
+import { clampActiveDropsByStage } from './config/performance'
+import type { RareDropEntity } from './entities/dropItem'
 import { createPlayer, movePlayer, tickPlayer, tryConsumeShot, type PlayerEntity } from './entities/player'
-import { createPlayerProjectile, stepProjectiles, type ProjectileEntity } from './entities/projectile'
+import {
+  createHomingMissileProjectile,
+  createLaserProjectile,
+  createPlayerProjectile,
+  steerHomingProjectiles,
+  stepProjectiles,
+  type ProjectileEntity
+} from './entities/projectile'
 import { createInputManager } from './input/inputManager'
 import { createGameLoop, type GameLoopController } from './loop'
 import { gameStore } from '../state/gameStore'
-import { checkEnemyReachedPlayerLine, resolvePlayerProjectileCollisions } from './systems/collisionSystem'
-import { evaluateStageProgression } from './systems/progressionSystem'
+import {
+  checkEnemyReachedPlayerLine,
+  resolveBossProjectileCollisions,
+  resolvePlayerDropCollisions,
+  resolveEnemyProjectileHitsPlayer,
+  resolvePlayerProjectileCollisions
+} from './systems/collisionSystem'
+import { emitBossProjectiles } from './systems/bossAttackSystem'
+import { spawnBossForWave, tickBoss } from './systems/bossSystem'
+import { removeExpiredDrops } from './systems/dropSystem'
+import { createShopRunModifierOffer, evaluateStageProgression } from './systems/progressionSystem'
+import { addOrRefreshPowerUp, getActiveWeaponPowerUp, hasActivePowerUp, removeExpiredPowerUps } from './systems/powerUpSystem'
 import { updateScoreAndLives } from './systems/scoreLivesSystem'
-import { applyPlayerUpgrades, hasShieldUpgrade } from './systems/upgradeSystem'
-import { applyWaveEnemies, createInitialWave, stepEnemies, type WaveState } from './systems/waveSystem'
+import { applyPlayerUpgrades, getShieldLevel, hasShieldUpgrade } from './systems/upgradeSystem'
+import {
+  applyWaveEnemies,
+  createDropsFromDefeatedEnemies,
+  createInitialWave,
+  emitEnemyProjectiles,
+  stepEnemies,
+  type WaveState
+} from './systems/waveSystem'
 
 let context: CanvasRenderingContext2D | null = null
 let loopController: GameLoopController | null = null
@@ -18,7 +47,10 @@ const inputManager = createInputManager()
 let player: PlayerEntity | null = null
 let wave: WaveState = createInitialWave()
 let projectiles: ProjectileEntity[] = []
+let activeDrops: RareDropEntity[] = []
 let pendingStage: number | null = null
+let currentRunId = 'run-0'
+let currentRunSeed = 'seed-0'
 
 function syncStore(): void {
   const state = gameStore.getState()
@@ -26,6 +58,21 @@ function syncStore(): void {
     score: state.score,
     lives: state.lives,
     stage: wave.stage,
+    bossEncounter: {
+      active: Boolean(wave.boss),
+      bossId: wave.boss?.id ?? null,
+      health: wave.boss?.health ?? 0,
+      maxHealth: wave.boss?.maxHealth ?? 0
+    },
+    activeDrops: activeDrops.map((drop) => ({
+      id: drop.id,
+      x: drop.x,
+      y: drop.y,
+      width: drop.width,
+      height: drop.height,
+      grantedShotType: drop.grantedShotType,
+      expiresAtMs: drop.expiresAtMs
+    })),
     input: inputManager.readInput()
   })
 }
@@ -34,7 +81,10 @@ function resetRoundState(canvas: HTMLCanvasElement): void {
   player = createPlayer(canvas.width, canvas.height)
   wave = createInitialWave()
   projectiles = []
+  activeDrops = []
   pendingStage = null
+  currentRunId = 'run-0'
+  currentRunSeed = 'seed-0'
 }
 
 function update(deltaSeconds: number): void {
@@ -48,10 +98,14 @@ function update(deltaSeconds: number): void {
   }
 
   const input = inputManager.readInput()
+  const nowMs = Date.now()
   if (input.pause) {
     pauseGame()
     return
   }
+
+  let activePowerUps = removeExpiredPowerUps(state.activePowerUps, nowMs)
+  activeDrops = removeExpiredDrops(activeDrops, nowMs)
 
   player = tickPlayer(player, deltaSeconds)
   player = movePlayer(player, input.horizontal, deltaSeconds, context.canvas.width)
@@ -61,26 +115,128 @@ function update(deltaSeconds: number): void {
     player = nextPlayer
 
     if (shouldShoot) {
-      projectiles.push(createPlayerProjectile(player.x + player.width / 2 - 2, player.y - 10))
+      const weaponPowerUp = getActiveWeaponPowerUp(activePowerUps)
+      if (weaponPowerUp === 'laser') {
+        projectiles.push(createLaserProjectile(player.x + player.width / 2 - 4, player.y - 12))
+      } else if (weaponPowerUp === 'homing-missile') {
+        projectiles.push(createHomingMissileProjectile(player.x + player.width / 2 - 3, player.y - 12))
+      } else {
+        projectiles.push(createPlayerProjectile(player.x + player.width / 2 - 2, player.y - 10))
+      }
     }
   }
 
+  const targetX = wave.boss ? wave.boss.x + wave.boss.width / 2 : wave.enemies[0]?.x ?? null
+  projectiles = steerHomingProjectiles(projectiles, targetX, deltaSeconds)
   wave = stepEnemies(wave, deltaSeconds, context.canvas.width)
+  wave = tickBoss(wave, deltaSeconds, context.canvas.width)
   projectiles = stepProjectiles(projectiles, deltaSeconds, context.canvas.height)
 
+  const enemyShotsUpdate = emitEnemyProjectiles(wave, projectiles, player.x + player.width / 2)
+  wave = enemyShotsUpdate.wave
+  projectiles = enemyShotsUpdate.projectiles
+
+  const bossShotResult = emitBossProjectiles(wave, projectiles, player.x + player.width / 2)
+  wave = bossShotResult.wave
+  projectiles = bossShotResult.projectiles
+
   const collisionResult = resolvePlayerProjectileCollisions(wave.enemies, projectiles)
+  if (collisionResult.defeatedEnemies.length > 0) {
+    const spawnedDrops = createDropsFromDefeatedEnemies(collisionResult.defeatedEnemies, nowMs)
+
+    if (spawnedDrops.length > 0) {
+      const merged = [...activeDrops, ...spawnedDrops]
+      const allowedCount = clampActiveDropsByStage(wave.stage, merged.length)
+      activeDrops = merged.slice(-allowedCount)
+    }
+  }
   wave = applyWaveEnemies(wave, collisionResult.enemies)
   projectiles = collisionResult.projectiles
 
-  const progression = evaluateStageProgression(wave.stage, wave.enemies.length)
+  const bossBeforeCollision = wave.boss
+  const bossCollisionResult = resolveBossProjectileCollisions(wave.boss, projectiles)
+  wave = {
+    ...wave,
+    boss: bossCollisionResult.boss
+  }
+  projectiles = bossCollisionResult.projectiles
+
+  const playerHitResult = resolveEnemyProjectileHitsPlayer(
+    player,
+    projectiles,
+    deltaSeconds,
+    hasActivePowerUp(activePowerUps, 'shield')
+  )
+  projectiles = playerHitResult.projectiles
+
+  const dropCollision = resolvePlayerDropCollisions(player, activeDrops)
+  activeDrops = dropCollision.drops
+  if (dropCollision.collectedShots.length > 0) {
+    for (const shotType of dropCollision.collectedShots) {
+      activePowerUps = addOrRefreshPowerUp(activePowerUps, shotType, nowMs)
+    }
+  }
+
+  const progression = evaluateStageProgression(
+    wave.stage,
+    wave.enemies.length,
+    Boolean(wave.boss),
+    bossCollisionResult.bossDefeated
+  )
+
+  if (progression.enterBossFight) {
+    wave = spawnBossForWave(wave)
+    gameStore.setState({
+      bossEncounter: {
+        active: Boolean(wave.boss),
+        bossId: wave.boss?.id ?? null,
+        health: wave.boss?.health ?? 0,
+        maxHealth: wave.boss?.maxHealth ?? 0
+      }
+    })
+    return
+  }
+
   if (progression.enterShop) {
     pendingStage = progression.nextStage
+
+    const bossPoints = bossCollisionResult.bossDefeated ? (bossBeforeCollision?.points ?? 0) : 0
+    const nextScore = state.score + bossPoints
+    const highScoreWithBoss = Math.max(state.highScore, nextScore)
+
+    void getPersistedProgressProfile().then((profile) => {
+      if (progression.nextStage <= profile.highestUnlockedStage) {
+        return
+      }
+
+      void savePersistedProgressProfile({
+        highestUnlockedStage: progression.nextStage,
+        totalRuns: profile.totalRuns
+      })
+    })
+
+    const runModifierOffer = createShopRunModifierOffer({
+      runId: currentRunId,
+      stageNumber: wave.stage,
+      runSeed: currentRunSeed,
+      upgradeLevels: state.upgradeLevels
+    })
+
     gameStore.setState({
       status: 'shop',
-      score: state.score,
+      score: nextScore,
       lives: state.lives,
       stage: wave.stage,
-      highScore: state.highScore,
+      highScore: highScoreWithBoss,
+      bossEncounter: {
+        active: false,
+        bossId: null,
+        health: 0,
+        maxHealth: 0
+      },
+      runModifierOffer,
+      activePowerUps,
+      activeDrops,
       input
     })
     pauseGameLoop()
@@ -92,27 +248,37 @@ function update(deltaSeconds: number): void {
     score: state.score,
     lives: state.lives,
     defeatedEnemyCount: collisionResult.defeatedEnemyCount,
-    enemyReachedBottom
+    enemyReachedBottom,
+    playerHitCount: playerHitResult.playerHitCount,
+    bonusScore: bossCollisionResult.bossDefeated ? (bossBeforeCollision?.points ?? 0) : 0
   })
 
   const highScore = Math.max(state.highScore, scoreLives.score)
 
+  if (scoreLives.isGameOver) {
+    gameStore.setState({
+      status: 'game-over',
+      score: scoreLives.score,
+      lives: scoreLives.lives,
+      highScore,
+      stage: wave.stage,
+      bossEncounter: {
+        active: Boolean(wave.boss),
+        bossId: wave.boss?.id ?? null,
+        health: wave.boss?.health ?? 0,
+        maxHealth: wave.boss?.maxHealth ?? 0
+      },
+      activePowerUps,
+      activeDrops,
+      input
+    })
+
+    void saveLocalHighscore(scoreLives.score)
+    pauseGameLoop()
+    return
+  }
+
   if (enemyReachedBottom) {
-    if (scoreLives.isGameOver) {
-      gameStore.setState({
-        status: 'game-over',
-        score: scoreLives.score,
-        lives: scoreLives.lives,
-        highScore,
-        stage: wave.stage,
-        input
-      })
-
-      void saveLocalHighscore(scoreLives.score)
-      pauseGameLoop()
-      return
-    }
-
     player = createPlayer(context.canvas.width, context.canvas.height)
     wave = {
       ...wave,
@@ -126,6 +292,14 @@ function update(deltaSeconds: number): void {
     lives: scoreLives.lives,
     highScore,
     stage: wave.stage,
+    bossEncounter: {
+      active: Boolean(wave.boss),
+      bossId: wave.boss?.id ?? null,
+      health: wave.boss?.health ?? 0,
+      maxHealth: wave.boss?.maxHealth ?? 0
+    },
+    activePowerUps,
+    activeDrops,
     input
   })
 }
@@ -148,9 +322,19 @@ function render(): void {
     context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
   }
 
+  if (wave.boss) {
+    context.fillStyle = '#f97316'
+    context.fillRect(wave.boss.x, wave.boss.y, wave.boss.width, wave.boss.height)
+  }
+
   context.fillStyle = '#f8fafc'
   for (const projectile of projectiles) {
     context.fillRect(projectile.x, projectile.y, projectile.width, projectile.height)
+  }
+
+  context.fillStyle = '#fbbf24'
+  for (const drop of activeDrops) {
+    context.fillRect(drop.x, drop.y, drop.width, drop.height)
   }
 }
 
@@ -196,17 +380,38 @@ export function startRound(): void {
   }
 
   const state = gameStore.getState()
-  player = applyPlayerUpgrades(player, state.activeUpgrades as ShopItemId[])
+  const nextRunOrdinal = Math.max(1, state.progressionProfile.totalRuns + 1)
+  currentRunId = `run-${nextRunOrdinal}`
+  currentRunSeed = `${nextRunOrdinal}-${Date.now()}-${state.highScore}`
 
-  if (hasShieldUpgrade(state.activeUpgrades as ShopItemId[])) {
+  player = applyPlayerUpgrades(player, state.upgradeLevels)
+
+  if (hasShieldUpgrade(state.upgradeLevels)) {
+    const shieldLevel = getShieldLevel(state.upgradeLevels)
     gameStore.setState({
-      lives: Math.max(state.lives, 4)
+      lives: Math.max(state.lives, 3 + shieldLevel)
     })
   }
 
   gameStore.setState({
     status: 'running'
   })
+
+  void getPersistedProgressProfile().then((profile) => {
+    const nextRuns = profile.totalRuns + 1
+    gameStore.setState({
+      progressionProfile: {
+        highestUnlockedStage: profile.highestUnlockedStage,
+        totalRuns: nextRuns
+      }
+    })
+
+    void savePersistedProgressProfile({
+      highestUnlockedStage: profile.highestUnlockedStage,
+      totalRuns: nextRuns
+    })
+  })
+
   loopController?.resume()
 }
 
@@ -245,7 +450,7 @@ export function restartRound(): void {
   loopController?.resume()
 }
 
-export function continueToNextStage(upgrades: ShopItemId[]): void {
+export function continueToNextStage(upgradeLevels: UpgradeLevels): void {
   if (!context || pendingStage === null) {
     return
   }
@@ -253,19 +458,29 @@ export function continueToNextStage(upgrades: ShopItemId[]): void {
   wave = {
     stage: pendingStage,
     enemies: createEnemyGrid(pendingStage),
+    boss: null,
     direction: 1
   }
   pendingStage = null
   projectiles = []
+  activeDrops = []
 
   if (player) {
-    player = applyPlayerUpgrades(player, upgrades)
+    player = applyPlayerUpgrades(player, upgradeLevels)
   }
+
+  void logTelemetryEvent('cycle-stage-advanced', {
+    stage: wave.stage,
+    cycle: getCycleIndex(wave.stage),
+    bossStage: isBossStage(wave.stage)
+  })
 
   gameStore.setState({
     status: 'running',
     stage: wave.stage,
-    activeUpgrades: upgrades
+    upgradeLevels,
+    runModifierOffer: null,
+    activeDrops
   })
 
   loopController?.resume()

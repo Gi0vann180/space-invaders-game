@@ -3,6 +3,8 @@ type ScoreLivesUpdateInput = {
   lives: number
   defeatedEnemyCount: number
   enemyReachedBottom: boolean
+  playerHitCount: number
+  bonusScore?: number
 }
 
 type ScoreLivesUpdateOutput = {
@@ -15,10 +17,13 @@ export function updateScoreAndLives({
   score,
   lives,
   defeatedEnemyCount,
-  enemyReachedBottom
+  enemyReachedBottom,
+  playerHitCount,
+  bonusScore = 0
 }: ScoreLivesUpdateInput): ScoreLivesUpdateOutput {
-  const nextScore = score + defeatedEnemyCount * 10
-  const nextLives = enemyReachedBottom ? Math.max(0, lives - 1) : lives
+  const nextScore = score + defeatedEnemyCount * 10 + bonusScore
+  const totalDamage = playerHitCount + (enemyReachedBottom ? 1 : 0)
+  const nextLives = Math.max(0, lives - totalDamage)
 
   return {
     score: nextScore,

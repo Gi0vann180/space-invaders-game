@@ -21,7 +21,11 @@ describe('US2 shop persistence', () => {
   it('carrega upgrades persistidos', async () => {
     getRecordMock.mockResolvedValue({
       id: 'owned-upgrades',
-      upgrades: ['upgrade-speed']
+      upgradeLevels: {
+        'upgrade-speed': 2,
+        'upgrade-fire-rate': 0,
+        'upgrade-shield': 0
+      }
     })
 
     const upgrades = await getPersistedUpgrades()
@@ -35,6 +39,7 @@ describe('US2 shop persistence', () => {
 
     expect(putRecordMock).toHaveBeenCalledTimes(1)
     expect(putRecordMock.mock.calls[0][0]).toBe('upgrades')
-    expect(putRecordMock.mock.calls[0][1].upgrades).toEqual(['upgrade-speed', 'upgrade-fire-rate'])
+    expect(putRecordMock.mock.calls[0][1].upgradeLevels['upgrade-speed']).toBe(1)
+    expect(putRecordMock.mock.calls[0][1].upgradeLevels['upgrade-fire-rate']).toBe(1)
   })
 })

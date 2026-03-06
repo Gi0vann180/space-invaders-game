@@ -1,0 +1,425 @@
+openapi: 3.0.3
+info:
+  title: Boss Progression and Power-ups Contract
+  version: 0.1.0
+  description: >-
+    Contrato de referência para progressão de fase com chefe, gestão de power-ups
+    temporários, seleção de melhorias roguelike por run e upgrades permanentes.
+servers:
+  - url: https://example.local
+paths:
+  /game-sessions:
+    post:
+      summary: Inicia nova sessão com estado base e progressão carregada
+      operationId: createGameSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGameSessionRequest'
+      responses:
+        '201':
+          description: Sessão criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSession'
+  /game-sessions/{sessionId}/stages/{stageNumber}/boss/spawn:
+    post:
+      summary: Inicia encontro de chefe da fase
+      operationId: spawnBossEncounter
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: stageNumber
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Chefe ativo para combate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BossEncounter'
+  /game-sessions/{sessionId}/bosses/{bossId}/attacks/next:
+    post:
+      summary: Resolve próximo padrão de ataque do chefe
+      operationId: resolveBossAttackPattern
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: bossId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BossAttackTickRequest'
+      responses:
+        '200':
+          description: Padrão aplicado no tick atual
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BossAttackTickResponse'
+  /game-sessions/{sessionId}/power-ups/activate:
+    post:
+      summary: Ativa power-up temporário na run atual
+      operationId: activateTemporaryPowerUp
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivatePowerUpRequest'
+      responses:
+        '200':
+          description: Power-up ativado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivePowerUpState'
+        '409':
+          description: Conflito de power-up resolvido por substituição/regra
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PowerUpConflictResolution'
+  /game-sessions/{sessionId}/runs/{runId}/modifier-offers:
+    post:
+      summary: Gera ofertas roguelike de melhorias para a run
+      operationId: generateRunModifierOffers
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: runId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateModifierOfferRequest'
+      responses:
+        '200':
+          description: Ofertas geradas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunModifierOffer'
+  /player-profiles/{profileId}/upgrades/{upgradeId}/purchase:
+    post:
+      summary: Compra upgrade permanente e persiste entre partidas
+      operationId: purchasePermanentUpgrade
+      parameters:
+        - in: path
+          name: profileId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: upgradeId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchasePermanentUpgradeRequest'
+      responses:
+        '200':
+          description: Upgrade aplicado e persistido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermanentUpgradePurchaseResult'
+        '409':
+          description: Limite de nível atingido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermanentUpgradeBlocked'
+components:
+  schemas:
+    CreateGameSessionRequest:
+      type: object
+      required: [playerId]
+      properties:
+        playerId:
+          type: string
+    GameSession:
+      type: object
+      required:
+        [sessionId, status, currentStage, lives, score, profileId, upgradeLevels, activePowerUps, bossEncounter, progressionProfile]
+      properties:
+        sessionId:
+          type: string
+        status:
+          type: string
+          enum: [idle, running, paused, shop, game-over]
+        currentStage:
+          type: integer
+          minimum: 1
+        lives:
+          type: integer
+          minimum: 0
+        score:
+          type: integer
+          minimum: 0
+        profileId:
+          type: string
+        upgradeLevels:
+          $ref: '#/components/schemas/UpgradeLevels'
+        activePowerUps:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivePowerUpState'
+        bossEncounter:
+          $ref: '#/components/schemas/BossEncounterState'
+        progressionProfile:
+          $ref: '#/components/schemas/ProgressProfile'
+        runModifierOffer:
+          oneOf:
+            - $ref: '#/components/schemas/RunModifierOffer'
+            - type: 'null'
+    BossEncounter:
+      type: object
+      required: [bossId, stageNumber, maxHealth, currentHealth, attackPatternIds]
+      properties:
+        bossId:
+          type: string
+        stageNumber:
+          type: integer
+          minimum: 1
+        maxHealth:
+          type: integer
+          minimum: 1
+        currentHealth:
+          type: integer
+          minimum: 0
+        attackPatternIds:
+          type: array
+          minItems: 1
+          items:
+            type: string
+    BossAttackTickRequest:
+      type: object
+      required: [tickMs, playerX, playerY]
+      properties:
+        tickMs:
+          type: integer
+          minimum: 1
+        playerX:
+          type: number
+        playerY:
+          type: number
+    BossAttackTickResponse:
+      type: object
+      required: [patternId, generatedProjectiles]
+      properties:
+        patternId:
+          type: string
+        generatedProjectiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Projectile'
+    Projectile:
+      type: object
+      required: [projectileId, origin, speedY, damage]
+      properties:
+        projectileId:
+          type: string
+        origin:
+          type: string
+          enum: [enemy, player]
+        speedY:
+          type: number
+        damage:
+          type: integer
+          minimum: 1
+    ActivatePowerUpRequest:
+      type: object
+      required: [powerUpType, nowMs]
+      properties:
+        powerUpType:
+          type: string
+          enum: [laser, homing-missile, shield]
+        nowMs:
+          type: integer
+          minimum: 1
+    ActivePowerUpState:
+      type: object
+      required: [powerUpType, startedAtMs, expiresAtMs, conflictGroup]
+      properties:
+        powerUpType:
+          type: string
+          enum: [laser, homing-missile, shield]
+        startedAtMs:
+          type: integer
+          minimum: 1
+        expiresAtMs:
+          type: integer
+          minimum: 1
+        conflictGroup:
+          type: string
+          enum: [weapon, defense]
+    PowerUpConflictResolution:
+      type: object
+      required: [replacedPowerUpType, activatedPowerUpType, strategy]
+      properties:
+        replacedPowerUpType:
+          type: string
+        activatedPowerUpType:
+          type: string
+        strategy:
+          type: string
+          enum: [replace_active_same_group, ignore_new, merge_limited]
+    GenerateModifierOfferRequest:
+      type: object
+      required: [stageNumber, runSeed]
+      properties:
+        stageNumber:
+          type: integer
+          minimum: 1
+        runSeed:
+          type: string
+    RunModifierOffer:
+      type: object
+      required: [runId, stageNumber, options, guaranteedApplicableOption, selectedModifierId]
+      properties:
+        runId:
+          type: string
+        stageNumber:
+          type: integer
+          minimum: 1
+        options:
+          type: array
+          minItems: 2
+          items:
+            $ref: '#/components/schemas/ModifierOption'
+        guaranteedApplicableOption:
+          type: boolean
+          enum: [true]
+        selectedModifierId:
+          oneOf:
+            - type: string
+            - type: 'null'
+    ModifierOption:
+      type: object
+      required: [modifierId, label, category, applicable]
+      properties:
+        modifierId:
+          type: string
+        label:
+          type: string
+        category:
+          type: string
+          enum: [offense, defense, utility]
+        applicable:
+          type: boolean
+    BossEncounterState:
+      type: object
+      required: [active, bossId, health, maxHealth]
+      properties:
+        active:
+          type: boolean
+        bossId:
+          oneOf:
+            - type: string
+            - type: 'null'
+        health:
+          type: integer
+          minimum: 0
+        maxHealth:
+          type: integer
+          minimum: 0
+    ProgressProfile:
+      type: object
+      required: [highestUnlockedStage, totalRuns]
+      properties:
+        highestUnlockedStage:
+          type: integer
+          minimum: 1
+        totalRuns:
+          type: integer
+          minimum: 0
+    UpgradeLevels:
+      type: object
+      required: [upgrade-fire-rate, upgrade-speed, upgrade-shield]
+      properties:
+        upgrade-fire-rate:
+          type: integer
+          minimum: 0
+          maximum: 10
+        upgrade-speed:
+          type: integer
+          minimum: 0
+          maximum: 10
+        upgrade-shield:
+          type: integer
+          minimum: 0
+          maximum: 10
+    PurchasePermanentUpgradeRequest:
+      type: object
+      required: [currency]
+      properties:
+        currency:
+          type: integer
+          minimum: 0
+    PermanentUpgradePurchaseResult:
+      type: object
+      required: [upgradeId, previousLevel, newLevel, persisted]
+      properties:
+        upgradeId:
+          type: string
+        previousLevel:
+          type: integer
+          minimum: 0
+        newLevel:
+          type: integer
+          minimum: 1
+        persisted:
+          type: boolean
+          enum: [true]
+    PermanentUpgradeBlocked:
+      type: object
+      required: [upgradeId, currentLevel, reason, persisted]
+      properties:
+        upgradeId:
+          type: string
+        currentLevel:
+          type: integer
+        reason:
+          type: string
+          enum: [MAX_LEVEL_REACHED]
+        persisted:
+          type: boolean
+          enum: [true]
