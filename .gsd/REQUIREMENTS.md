@@ -1,4 +1,4 @@
-# Requirements: Space Invaders Mobile
+﻿# Requirements: Space Invaders Mobile
 
 **Defined:** 2026-03-23
 **Core Value:** Entregar uma sessao arcade curta, divertida e clara no celular, em que o jogador aprende jogando e sente progressao real sem perder a simplicidade do Space Invaders.
@@ -60,25 +60,25 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 | ----------- | ----- | ------ |
-| CTRL-01 | TBD | Pending |
-| CTRL-02 | TBD | Pending |
-| CTRL-03 | TBD | Pending |
-| COMB-01 | TBD | Pending |
-| COMB-02 | TBD | Pending |
-| COMB-03 | TBD | Pending |
-| PROG-01 | TBD | Pending |
-| PROG-02 | TBD | Pending |
-| ANDR-01 | TBD | Pending |
-| ANDR-02 | TBD | Pending |
-| ANDR-03 | TBD | Pending |
+| CTRL-01 | Phase 1 | Pending |
+| CTRL-02 | Phase 1 | Pending |
+| CTRL-03 | Phase 1 | Pending |
+| COMB-01 | Phase 2 | Pending |
+| COMB-02 | Phase 2 | Pending |
+| COMB-03 | Phase 2 | Pending |
+| PROG-01 | Phase 3 | Pending |
+| PROG-02 | Phase 3 | Pending |
+| ANDR-01 | Phase 4 | Pending |
+| ANDR-02 | Phase 4 | Pending |
+| ANDR-03 | Phase 4 | Pending |
 
 **Coverage:**
 
 - v1 requirements: 11 total
-- Mapped to phases: 0
-- Unmapped: 11 ⚠️
+- Mapped to phases: 11
+- Unmapped: 0
 
 ---
 
 _Requirements defined: 2026-03-23_
-_Last updated: 2026-03-23 after initial definition_
+_Last updated: 2026-03-23 after roadmap mapping_
