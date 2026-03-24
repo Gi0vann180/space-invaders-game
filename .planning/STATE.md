@@ -1,20 +1,20 @@
-# Project State: Space Invaders Futurista Mobile v1
+﻿# Project State: Space Invaders Futurista Mobile v1
 
 **Project**: Space Invaders Futurista Mobile  
 **Milestone**: v1 (Initial Release)  
 **Created**: 2026-03-23  
-**Status**: Phase 1 UI-SPEC approved, ready for Phase 1 planning
+**Status**: Phase 1 planned, ready for execution
 
 ---
 
 ## Project Reference
 
-**Core Value**: Entregar uma experiência de combate espacial divertida, moderna e altamente rejogável no mobile, com controles simples e sensação forte de progresso a cada fase.
+**Core Value**: Entregar uma experiÃªncia de combate espacial divertida, moderna e altamente rejogÃ¡vel no mobile, com controles simples e sensaÃ§Ã£o forte de progresso a cada fase.
 
 **Strategic Intent**: 
-- Transformar protótipo web (React + Canvas) em produto pronto para distribuição em Play Store e Apple Store
-- Alcançar 20%+ D7 retention via design cuidadoso de progressão, acessibilidade mobile-first e monetização responsável
-- Portfolio + aprendizado: executar ciclo completo de publicação
+- Transformar protÃ³tipo web (React + Canvas) em produto pronto para distribuiÃ§Ã£o em Play Store e Apple Store
+- AlcanÃ§ar 20%+ D7 retention via design cuidadoso de progressÃ£o, acessibilidade mobile-first e monetizaÃ§Ã£o responsÃ¡vel
+- Portfolio + aprendizado: executar ciclo completo de publicaÃ§Ã£o
 
 **Product Type**: Free-to-play casual/mid-core arcade shooter, mobile-first, offline-capable, 3-15 min sessions
 
@@ -22,7 +22,7 @@
 
 **Success Metrics**:
 - Core loop: 60fps on mid-range devices, <50ms touch latency, 8-12 min avg session
-- Retention: D1 ≥18%, D7 ≥20%
+- Retention: D1 â‰¥18%, D7 â‰¥20%
 - Quality gate: <2% crash rate, no skill wall before phase 3, no aggressive monetization in core loop
 - Release: App published, visible in both stores, downloadable and playable
 
@@ -31,17 +31,17 @@
 ## Current Position
 
 **Milestone Progress**: Roadmap phase  
-**Current Phase**: Phase 1 - Campaign Meta-Layer (context gathered)  
-**Current Plan**: Pending creation via /gsd-plan-phase 1  
-**Completed Plans**: 0/7  
+**Current Phase**: Phase 1 - Campaign Meta-Layer (planned)  
+**Current Plan**: 01-01 and 01-02 created  
+**Completed Plans**: 0/7 (planned: 2 for Phase 1)  
 
-**Session Focus**: Discuss-phase 1 concluida — decisoes de campanha, persistencia, retomada offline e regras de progressao capturadas em CONTEXT.md
+**Session Focus**: Discuss-phase 1 concluida â€” decisoes de campanha, persistencia, retomada offline e regras de progressao capturadas em CONTEXT.md
 
 **Progress Indicator**:
 ```
-[████████████████████████████████----] ROADMAP COMPLETE (7 phases identified, 100% coverage)
-↓
-Next: Phase 1 planning
+[â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ----] ROADMAP COMPLETE (7 phases identified, 100% coverage)
+â†“
+Next: Phase 1 execution
 ```
 
 ---
@@ -50,24 +50,24 @@ Next: Phase 1 planning
 
 | Artifact | Status | Last Updated |
 |----------|--------|--------------|
-| ROADMAP.md | ✓ Created | 2026-03-23 |
-| STATE.md | ✓ Created | 2026-03-23 |
-| REQUIREMENTS.md (traceability) | ✓ Updated | 2026-03-23 |
-| PROJECT.md | ✓ Reviewed (no changes) | 2026-03-23 |
-| Phase 1 PLAN.md | ⏳ Pending (next step) | - |
-| Phase 1 CONTEXT.md | ✓ Created | 2026-03-23 |
-| Phase 1 DISCUSSION-LOG.md | ✓ Created | 2026-03-23 |
-| Phase 1 UI-SPEC.md | ✓ Approved | 2026-03-24 |
+| ROADMAP.md | âœ“ Created | 2026-03-23 |
+| STATE.md | âœ“ Created | 2026-03-23 |
+| REQUIREMENTS.md (traceability) | âœ“ Updated | 2026-03-23 |
+| PROJECT.md | âœ“ Reviewed (no changes) | 2026-03-23 |
+| Phase 1 PLAN.md | â³ Pending (next step) | - |
+| Phase 1 CONTEXT.md | âœ“ Created | 2026-03-23 |
+| Phase 1 DISCUSSION-LOG.md | âœ“ Created | 2026-03-23 |
+| Phase 1 UI-SPEC.md | âœ“ Approved | 2026-03-24 |
 
 ---
 
 ## Performance Metrics
 
 **Roadmap Quality**:
-- Requirement coverage: 14/14 (100%) ✓
+- Requirement coverage: 14/14 (100%) âœ“
 - Phase structure: 7 phases (natural delivery boundaries, non-arbitrary)
 - Success criteria per phase: 5 observable behaviors each (goal-backward derived)
-- Dependency clarity: Linear chain (Phase 1 → 2 → 3 ...) with some parallel work possible (Phase 3, 4, 5 can start after Phase 1/2)
+- Dependency clarity: Linear chain (Phase 1 â†’ 2 â†’ 3 ...) with some parallel work possible (Phase 3, 4, 5 can start after Phase 1/2)
 
 **Estimated Metrics** (from RESEARCH/SUMMARY.md):
 - Phase 1: ~12 weeks (campaign meta-layer foundation)
@@ -87,11 +87,11 @@ Next: Phase 1 planning
 
 | Decision | Rationale | Status |
 |----------|-----------|--------|
-| **Phase-backward roadmapping** | Derived phases from v1 requirements, not templates; ensures 100% coverage and natural delivery boundaries | Applied ✓ |
-| **Linear dependency chain** | Campaign foundation → Boss encounters → Build system → Events; later phases depend on earlier foundation | Validated ✓ |
-| **Mobile UX in Phase 5, not Phase 1** | Phase 1 focuses on meta-layer mechanics; touch optimization applied holistically in Phase 5 after core systems stable | Applied ✓ |
-| **Monetization last (Phase 6)** | Avoids aggressive early decisions; soft launch validates market before full release | Applied ✓ |
-| **Goal-backward success criteria** | Each criterion is observable user behavior, not implementation task (e.g., "Player sees level complete screen" not "Implement victory screen function") | Applied ✓ |
+| **Phase-backward roadmapping** | Derived phases from v1 requirements, not templates; ensures 100% coverage and natural delivery boundaries | Applied âœ“ |
+| **Linear dependency chain** | Campaign foundation â†’ Boss encounters â†’ Build system â†’ Events; later phases depend on earlier foundation | Validated âœ“ |
+| **Mobile UX in Phase 5, not Phase 1** | Phase 1 focuses on meta-layer mechanics; touch optimization applied holistically in Phase 5 after core systems stable | Applied âœ“ |
+| **Monetization last (Phase 6)** | Avoids aggressive early decisions; soft launch validates market before full release | Applied âœ“ |
+| **Goal-backward success criteria** | Each criterion is observable user behavior, not implementation task (e.g., "Player sees level complete screen" not "Implement victory screen function") | Applied âœ“ |
 
 ### Outstanding Todos
 
@@ -117,11 +117,11 @@ None identified. Roadmap is clear and ready for Phase 1 planning.
 
 ### Assumptions Made
 
-1. **Existing engine is sufficient** — Current Canvas engine + React can support all planned features without rewrite; performance gates in Phase 2/5 will validate
-2. **Campaign is linear progression** — Phases unlock sequentially (1 → 2 → 3 ...); no tree/branching for v1
-3. **Soft launch is mandatory** — 23-week soft launch before public release to validate retention and catch monetization issues (hard gate: D1 ≥18%)
-4. **Monetization is cosmetics-only** — IAP restricted to skins/trails/HUD themes, not gameplay-affecting items
-5. **Offline is core requirement** — No mandatory online connectivity; soft-launch regions may have connectivity assumptions for telemetry, but core loop works offline
+1. **Existing engine is sufficient** â€” Current Canvas engine + React can support all planned features without rewrite; performance gates in Phase 2/5 will validate
+2. **Campaign is linear progression** â€” Phases unlock sequentially (1 â†’ 2 â†’ 3 ...); no tree/branching for v1
+3. **Soft launch is mandatory** â€” 23-week soft launch before public release to validate retention and catch monetization issues (hard gate: D1 â‰¥18%)
+4. **Monetization is cosmetics-only** â€” IAP restricted to skins/trails/HUD themes, not gameplay-affecting items
+5. **Offline is core requirement** â€” No mandatory online connectivity; soft-launch regions may have connectivity assumptions for telemetry, but core loop works offline
 
 ---
 
@@ -133,7 +133,7 @@ None identified. Roadmap is clear and ready for Phase 1 planning.
 - Ready to proceed to phase planning with UI constraints locked
 
 **Next Session Should**:
-1. Run `/gsd-plan-phase 1` to create Phase 1 PLAN.md (Campaign Meta-Layer)
+1. Run `/gsd-execute-phase 1` to execute the two Phase 1 plans
 2. During Phase 1 planning, resolve architecture TODOs (campaign schema, persistence, unlock rules)
 3. Use 01-CONTEXT.md and 01-UI-SPEC.md as locked inputs for researcher/planner
 
@@ -160,8 +160,8 @@ None identified. Roadmap is clear and ready for Phase 1 planning.
 
 **Success Criteria Philosophy**:
 All criteria in ROADMAP.md are written from player perspective (observable behaviors) not engineering perspective (implementation tasks). Example:
-- ❌ Bad: "Implement boss state machine for 3 boss types"
-- ✓ Good: "Player sees 3 boss types with visually distinct behaviors"
+- âŒ Bad: "Implement boss state machine for 3 boss types"
+- âœ“ Good: "Player sees 3 boss types with visually distinct behaviors"
 
 This ensures Phase deliverables remain focused on user value, not technical debt.
 
@@ -169,3 +169,5 @@ This ensures Phase deliverables remain focused on user value, not technical debt
 
 *STATE.md created: 2026-03-23*  
 *Milestone v1 Status: Roadmap approved, ready for Phase 1 planning*
+
+
