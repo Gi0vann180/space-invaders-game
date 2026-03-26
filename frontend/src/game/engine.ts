@@ -1,6 +1,9 @@
 import { saveLocalHighscore } from '../services/highscoreService'
 import { logTelemetryEvent } from '../lib/telemetry'
-import { getPersistedProgressProfile, savePersistedProgressProfile } from '../services/shopPersistenceService'
+import {
+  getPersistedProgressProfile,
+  savePersistedProgressProfile
+} from '../services/shopPersistenceService'
 import type { UpgradeLevels } from '../services/shopService'
 import { getCycleIndex, isBossStage } from './config/gameplay'
 import { createEnemyGrid } from './entities/enemy'
@@ -203,13 +206,12 @@ function update(deltaSeconds: number): void {
     const highScoreWithBoss = Math.max(state.highScore, nextScore)
 
     void getPersistedProgressProfile().then((profile) => {
-      if (progression.nextStage <= profile.highestUnlockedStage) {
-        return
-      }
-
       void savePersistedProgressProfile({
-        highestUnlockedStage: progression.nextStage,
-        totalRuns: profile.totalRuns
+        highestUnlockedStage: Math.max(profile.highestUnlockedStage, progression.nextStage),
+        totalRuns: profile.totalRuns,
+        lastAttemptedStage: profile.lastAttemptedStage,
+        lastCompletedStage: Math.max(wave.stage, profile.lastCompletedStage ?? 0),
+        interruptedRun: null
       })
     })
 
@@ -226,6 +228,13 @@ function update(deltaSeconds: number): void {
       lives: state.lives,
       stage: wave.stage,
       highScore: highScoreWithBoss,
+      progressionProfile: {
+        highestUnlockedStage: Math.max(state.progressionProfile.highestUnlockedStage, progression.nextStage),
+        totalRuns: state.progressionProfile.totalRuns,
+        lastAttemptedStage: state.progressionProfile.lastAttemptedStage,
+        lastCompletedStage: Math.max(wave.stage, state.progressionProfile.lastCompletedStage ?? 0),
+        interruptedRun: null
+      },
       bossEncounter: {
         active: false,
         bossId: null,
@@ -344,6 +353,14 @@ function pauseGameLoop(): void {
   loopController.pause()
 }
 
+function createInterruptedRunPayload(stage: number): { stage: number; atStatus: 'running' | 'paused'; savedAt: string } {
+  return {
+    stage,
+    atStatus: 'paused',
+    savedAt: new Date().toISOString()
+  }
+}
+
 export function startGame(canvas: HTMLCanvasElement): void {
   context = canvas.getContext('2d')
   if (!context) {
@@ -390,16 +407,23 @@ export function startRound(): void {
 
   void getPersistedProgressProfile().then((profile) => {
     const nextRuns = profile.totalRuns + 1
+    const stageCheckpoint = gameStore.getState().stage
     gameStore.setState({
       progressionProfile: {
         highestUnlockedStage: profile.highestUnlockedStage,
-        totalRuns: nextRuns
+        totalRuns: nextRuns,
+        lastAttemptedStage: stageCheckpoint,
+        lastCompletedStage: profile.lastCompletedStage,
+        interruptedRun: null
       }
     })
 
     void savePersistedProgressProfile({
       highestUnlockedStage: profile.highestUnlockedStage,
-      totalRuns: nextRuns
+      totalRuns: nextRuns,
+      lastAttemptedStage: stageCheckpoint,
+      lastCompletedStage: profile.lastCompletedStage,
+      interruptedRun: null
     })
   })
 
@@ -407,13 +431,31 @@ export function startRound(): void {
 }
 
 export function pauseGame(): void {
-  if (gameStore.getState().status !== 'running') {
+  const state = gameStore.getState()
+  if (state.status !== 'running') {
     return
   }
 
+  const interruptedRun = createInterruptedRunPayload(state.stage)
+
   gameStore.setState({
-    status: 'paused'
+    status: 'paused',
+    progressionProfile: {
+      ...state.progressionProfile,
+      interruptedRun
+    }
   })
+
+  void getPersistedProgressProfile().then((profile) => {
+    void savePersistedProgressProfile({
+      highestUnlockedStage: profile.highestUnlockedStage,
+      totalRuns: profile.totalRuns,
+      lastAttemptedStage: profile.lastAttemptedStage,
+      lastCompletedStage: profile.lastCompletedStage,
+      interruptedRun
+    })
+  })
+
   pauseGameLoop()
 }
 
@@ -476,3 +518,5 @@ export function continueToNextStage(upgradeLevels: UpgradeLevels): void {
 
   loopController?.resume()
 }
+
+

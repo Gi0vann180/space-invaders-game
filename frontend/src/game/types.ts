@@ -42,6 +42,13 @@ export type RareDropSnapshot = {
 export type ProgressProfileSnapshot = {
   highestUnlockedStage: number
   totalRuns: number
+  lastAttemptedStage: number | null
+  lastCompletedStage: number | null
+  interruptedRun: {
+    stage: number
+    atStatus: 'running' | 'paused'
+    savedAt: string
+  } | null
 }
 
 export type RunModifierOptionSnapshot = {
@@ -102,3 +109,4 @@ export const EMPTY_INPUT: InputSnapshot = {
   fire: false,
   pause: false
 }
+
