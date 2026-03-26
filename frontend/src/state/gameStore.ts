@@ -16,6 +16,12 @@ const initialState: GameSessionState = {
   bossEncounter: {
     active: false,
     bossId: null,
+    stage: null,
+    attempt: 0,
+    startedAtMs: null,
+    endedAtMs: null,
+    outcome: 'none',
+    damageTaken: 0,
     health: 0,
     maxHealth: 0
   },
@@ -68,3 +74,4 @@ class GameStore {
 }
 
 export const gameStore = new GameStore()
+

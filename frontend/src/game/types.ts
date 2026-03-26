@@ -16,6 +16,12 @@ export type GameStatus = 'idle' | 'running' | 'paused' | 'shop' | 'game-over'
 export type BossEncounterState = {
   active: boolean
   bossId: string | null
+  stage: number | null
+  attempt: number
+  startedAtMs: number | null
+  endedAtMs: number | null
+  outcome: 'none' | 'in-progress' | 'victory' | 'defeat'
+  damageTaken: number
   health: number
   maxHealth: number
 }
@@ -109,4 +115,3 @@ export const EMPTY_INPUT: InputSnapshot = {
   fire: false,
   pause: false
 }
-
