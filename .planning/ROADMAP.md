@@ -47,11 +47,41 @@ Plans:
 
 ---
 
+### Phase 2: Boss Encounters
+
+**Goal**: Cada fase da campanha apresenta um chefe com identidade mecânica clara, telemetria de vitória/derrota e feedback audiovisual consistente para leitura de padrões.
+
+**Depends on**: Phase 1
+
+**Requirements**: CAMP-02, CORE-04
+
+**Success Criteria** (what must be TRUE):
+  1. Jogador encontra chefes com padrões de ataque distintos por fase e consegue identificar diferenças entre eles
+  2. Vitória e derrota contra chefe disparam feedback audiovisual claro (efeitos, animações, áudio e estados de UI)
+  3. Telemetria registra eventos de início de boss, derrota do jogador e vitória do jogador com dados mínimos de fase/tentativa
+  4. Dificuldade de chefes escala de forma perceptível sem picos injustos entre fases consecutivas
+  5. Fluxo de transição após vitória/derrota do chefe mantém consistência com progressão da campanha
+
 **Plans**: TBD
 
 **UI hint**: yes
 
 ---
+
+### Phase 3: Build System & Synergies
+
+**Goal**: Jogador monta builds durante a run com upgrades complementares, percebendo sinergias claras que alteram estilo de jogo e aumentam rejogabilidade.
+
+**Depends on**: Phase 2
+
+**Requirements**: CAMP-03
+
+**Success Criteria** (what must be TRUE):
+  1. Jogador escolhe upgrades em momentos definidos da run com opções legíveis e impacto imediato
+  2. Combinações de upgrades geram sinergias identificáveis em gameplay (ex: cadência, área, status, ricochete)
+  3. HUD e/ou telas de escolha comunicam claramente efeitos ativos da build atual
+  4. Builds distintas resultam em sensação de jogo diferente em runs subsequentes
+  5. Sistema evita combinações quebradas que trivializam completamente os encontros de fase
 
 **Plans**: TBD
 
@@ -77,6 +107,21 @@ Plans:
 **Plans**: TBD
 
 ---
+
+### Phase 5: Mobile Touch & UX Polish
+
+**Goal**: Controles de toque, legibilidade e resposta da interface mobile atingem qualidade de produto para sessões curtas e repetidas sem fricção.
+
+**Depends on**: Phase 4
+
+**Requirements**: CORE-01
+
+**Success Criteria** (what must be TRUE):
+  1. Jogador controla a nave com toque de forma precisa e responsiva, sem sensação de atraso perceptível
+  2. Elementos críticos de UI permanecem legíveis em telas pequenas e diferentes densidades
+  3. Layout de HUD e botões evita toque acidental e mantém conforto em uso prolongado
+  4. Feedback tátil/visual para ações primárias melhora percepção de controle no mobile
+  5. Performance e UX se mantêm estáveis em dispositivos alvo mid-range
 
 **Plans**: TBD
 

@@ -21,7 +21,10 @@ const initialState: GameSessionState = {
   },
   progressionProfile: {
     highestUnlockedStage: 1,
-    totalRuns: 0
+    totalRuns: 0,
+    lastAttemptedStage: null,
+    lastCompletedStage: null,
+    interruptedRun: null
   },
   runModifierOffer: null,
   input: EMPTY_INPUT
