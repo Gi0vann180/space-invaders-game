@@ -1,13 +1,14 @@
 ---
 phase: 2
 slug: boss-encounters
-status: draft
+status: in-progress
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-03-24
+updated: 2026-03-26
 ---
 
-# Phase 2 — Validation Strategy
+# Phase 2 - Validation Strategy
 
 > Per-phase validation contract for feedback sampling during execution.
 
@@ -17,66 +18,46 @@ created: 2026-03-24
 
 | Property | Value |
 |----------|-------|
-| **Framework** | vitest + playwright |
-| **Config file** | frontend/vitest.config.ts; frontend/playwright.config.ts |
-| **Quick run command** | `npm --prefix frontend run test -- tests/integration/us1-boss-stage-flow.test.tsx` |
-| **Full suite command** | `npm --prefix frontend run validate` |
-| **Estimated runtime** | ~180 seconds |
+| Framework | vitest + playwright |
+| Config file | frontend/vitest.config.ts; frontend/playwright.config.ts |
+| Quick run command | npm --prefix frontend run test -- tests/unit/us2-boss-phase-detection.test.ts tests/integration/us2-phase-transition-difficulty.test.tsx |
+| Full suite command | npm --prefix frontend run validate |
+| Estimated runtime | ~180 seconds |
 
 ---
 
 ## Sampling Rate
 
-- **After every task commit:** Run `npm --prefix frontend run test -- tests/integration/us1-boss-stage-flow.test.tsx`
-- **After every plan wave:** Run `npm --prefix frontend run validate`
-- **Before `/gsd-verify-work`:** Full suite must be green
-- **Max feedback latency:** 240 seconds
+- After every task commit: run the target task command from Per-Task Verification Map.
+- After every plan wave: run npm --prefix frontend run typecheck plus focused regression tests.
+- Before /gsd-verify-work: full validate + required e2e suites must be green.
+- Max feedback latency: 240 seconds.
 
 ---
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 02-01-01 | 01 | 1 | CAMP-02 | integration | `npm --prefix frontend run test -- tests/integration/us1-boss-stage-flow.test.tsx` | ✅ | ⬜ pending |
-| 02-01-02 | 01 | 1 | CAMP-02 | unit/integration | `npm --prefix frontend run test -- tests/unit/**/boss*.test.ts` | ❌ W0 | ⬜ pending |
-| 02-01-03 | 01 | 1 | CAMP-02 | integration | `npm --prefix frontend run test -- tests/integration/us1-boss-stage-flow.test.tsx` | ✅ | ⬜ pending |
-| 02-02-01 | 02 | 2 | CORE-04 | integration | `npm --prefix frontend run test -- tests/integration/us1-boss-stage-flow.test.tsx` | ✅ | ⬜ pending |
-| 02-02-02 | 02 | 2 | CAMP-02, CORE-04 | unit/integration | `npm --prefix frontend run test -- tests/integration/us1-boss-stage-flow.test.tsx` | ✅ | ⬜ pending |
-| 02-02-03 | 02 | 2 | CAMP-02 | e2e | `npm --prefix frontend run test:e2e -- tests/e2e/us1-boss-phase10.spec.ts` | ✅ | ⬜ pending |
-| 02-03-01 | 03 | 3 | CAMP-02 | integration | `npm --prefix frontend run test -- tests/integration/us1-boss-stage-flow.test.tsx` | ✅ | ⬜ pending |
-| 02-03-02 | 03 | 3 | CAMP-02, CORE-04 | e2e | `npm --prefix frontend run test:e2e -- tests/e2e/us2-boss-defeat-transition.spec.ts` | ✅ | ⬜ pending |
-| 02-03-03 | 03 | 3 | CAMP-02, CORE-04 | full | `npm --prefix frontend run validate` | ✅ | ⬜ pending |
-
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
-
----
-
-## Wave 0 Requirements
-
-- [ ] `frontend/tests/unit/game/bossProfiles.test.ts` — stubs para CAMP-02
-- [ ] `frontend/tests/unit/services/telemetryBossEvents.test.ts` — stubs para CAMP-02/CORE-04
-- [ ] `frontend/tests/integration/us2-boss-telemetry-feedback.test.tsx` — cenário integrado de feedback + telemetria
-
-*If none: "Existing infrastructure covers all phase requirements."*
-
----
-
-## Manual-Only Verifications
-
-| Behavior | Requirement | Why Manual | Test Instructions |
-|----------|-------------|------------|-------------------|
-| Clareza audiovisual de vitória/derrota de boss em dispositivo real | CORE-04 | percepção visual/áudio/háptico depende de hardware | Rodar build local em dispositivo alvo, completar e perder encontro de boss, registrar se feedback é imediatamente perceptível e consistente |
+| Task ID | Plan | Wave | Requirement | Automated Command | Status |
+|---------|------|------|-------------|-------------------|--------|
+| 02-01-00 | 01 | 1 | CAMP-02 | rg -n "nyquist_compliant|Per-Task Verification Map|Sampling Rate" .planning/phases/02-boss-encounters/02-VALIDATION.md | done |
+| 02-01-01 | 01 | 1 | CAMP-02 | npm --prefix frontend run typecheck | pending |
+| 02-01-02 | 01 | 1 | CAMP-02 | npm --prefix frontend run test -- tests/unit/us2-boss-phase-detection.test.ts tests/integration/us2-phase-transition-difficulty.test.tsx | pending |
+| 02-02-01 | 02 | 2 | CAMP-02, CORE-04 | npm --prefix frontend run test -- tests/unit/us3-telemetry-consent.test.ts tests/unit/us2-boss-encounter-telemetry.test.ts | pending |
+| 02-02-02 | 02 | 2 | CORE-04 | npm --prefix frontend run test -- tests/integration/us2-boss-healthbar-sync.test.tsx tests/integration/us2-boss-outcome-feedback.test.tsx | pending |
+| 02-02-03 | 02 | 2 | CAMP-02, CORE-04 | npm --prefix frontend run typecheck | pending |
+| 02-03-01 | 03 | 3 | CAMP-02 | npm --prefix frontend run test -- tests/unit/us2-phase-difficulty-monotonic.test.ts | pending |
+| 02-03-02 | 03 | 3 | CAMP-02, CORE-04 | npm --prefix frontend run test -- tests/integration/us2-offensive-pressure-scaling.test.tsx tests/integration/us2-progression-shop.test.tsx | pending |
+| 02-03-03 | 03 | 3 | CAMP-02, CORE-04 | npm --prefix frontend run validate && npm --prefix frontend run test:e2e -- tests/e2e/us2-boss-defeat-transition.spec.ts tests/e2e/us2-boss-encounter-outcomes.spec.ts | pending |
 
 ---
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 240s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] Per-task automated verification map is defined for wave 1/2/3.
+- [x] Sampling rate is explicit and reproducible.
+- [ ] Wave 1 checks fully green.
+- [ ] Wave 2 checks fully green.
+- [ ] Wave 3 checks fully green.
+- [ ] nyquist_compliant set to true only after final gate.
 
-**Approval:** pending
+Approval: pending
