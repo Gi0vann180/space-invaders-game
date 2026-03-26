@@ -38,7 +38,6 @@ import { applyPlayerUpgrades } from './systems/upgradeSystem'
 import {
   applyWaveEnemies,
   createDropsFromDefeatedEnemies,
-  createInitialWave,
   emitEnemyProjectiles,
   stepEnemies,
   type WaveState
@@ -48,12 +47,98 @@ let context: CanvasRenderingContext2D | null = null
 let loopController: GameLoopController | null = null
 const inputManager = createInputManager()
 let player: PlayerEntity | null = null
-let wave: WaveState = createInitialWave()
+let wave: WaveState = {
+  stage: 1,
+  enemies: createEnemyGrid(1),
+  boss: null,
+  direction: 1
+}
 let projectiles: ProjectileEntity[] = []
 let activeDrops: RareDropEntity[] = []
 let pendingStage: number | null = null
 let currentRunId = 'run-0'
 let currentRunSeed = 'seed-0'
+let bossEncounterStartLives: number | null = null
+
+type BossEncounterSnapshot = ReturnType<typeof gameStore.getState>['bossEncounter']
+
+function getBossEncounterAttemptForStage(stage: number): number {
+  const encounter = gameStore.getState().bossEncounter
+  if (encounter.stage === stage) {
+    return encounter.attempt + 1
+  }
+
+  return 1
+}
+
+function updateBossEncounterFromWave(partial?: Partial<BossEncounterSnapshot>): void {
+  const state = gameStore.getState()
+  const existing = state.bossEncounter
+  const nextHealth = wave.boss?.health ?? 0
+  const nextMaxHealth = wave.boss?.maxHealth ?? 0
+  const livesBase = bossEncounterStartLives ?? state.lives
+
+  gameStore.setState({
+    bossEncounter: {
+      ...existing,
+      active: Boolean(wave.boss),
+      bossId: wave.boss?.id ?? null,
+      stage: wave.boss?.stage ?? existing.stage,
+      health: nextHealth,
+      maxHealth: nextMaxHealth,
+      damageTaken: wave.boss ? Math.max(existing.damageTaken, livesBase - state.lives) : existing.damageTaken,
+      ...partial
+    }
+  })
+}
+
+function startBossEncounter(nowMs: number): void {
+  const state = gameStore.getState()
+  bossEncounterStartLives = state.lives
+  updateBossEncounterFromWave({
+    stage: wave.stage,
+    attempt: getBossEncounterAttemptForStage(wave.stage),
+    startedAtMs: nowMs,
+    endedAtMs: null,
+    outcome: 'in-progress',
+    damageTaken: 0
+  })
+}
+
+function handleBossVictory(nowMs: number): void {
+  const state = gameStore.getState()
+  const livesBase = bossEncounterStartLives ?? state.lives
+
+  gameStore.setState({
+    bossEncounter: {
+      ...state.bossEncounter,
+      active: false,
+      endedAtMs: nowMs,
+      outcome: 'victory',
+      bossId: state.bossEncounter.bossId,
+      health: 0,
+      maxHealth: state.bossEncounter.maxHealth,
+      damageTaken: Math.max(state.bossEncounter.damageTaken, livesBase - state.lives)
+    }
+  })
+  bossEncounterStartLives = null
+}
+
+function handleBossPlayerDefeat(nowMs: number): void {
+  const state = gameStore.getState()
+  const livesBase = bossEncounterStartLives ?? state.lives
+
+  gameStore.setState({
+    bossEncounter: {
+      ...state.bossEncounter,
+      active: false,
+      endedAtMs: nowMs,
+      outcome: 'defeat',
+      damageTaken: Math.max(state.bossEncounter.damageTaken, livesBase - state.lives)
+    }
+  })
+  bossEncounterStartLives = null
+}
 
 function syncStore(): void {
   const state = gameStore.getState()
@@ -62,8 +147,10 @@ function syncStore(): void {
     lives: state.lives,
     stage: wave.stage,
     bossEncounter: {
+      ...state.bossEncounter,
       active: Boolean(wave.boss),
       bossId: wave.boss?.id ?? null,
+      stage: wave.boss?.stage ?? state.bossEncounter.stage,
       health: wave.boss?.health ?? 0,
       maxHealth: wave.boss?.maxHealth ?? 0
     },
@@ -80,14 +167,20 @@ function syncStore(): void {
   })
 }
 
-function resetRoundState(canvas: HTMLCanvasElement): void {
+function resetRoundState(canvas: HTMLCanvasElement, stage = 1): void {
   player = createPlayer(canvas.width, canvas.height)
-  wave = createInitialWave()
+  wave = {
+    stage,
+    enemies: createEnemyGrid(stage),
+    boss: null,
+    direction: 1
+  }
   projectiles = []
   activeDrops = []
   pendingStage = null
   currentRunId = 'run-0'
   currentRunSeed = 'seed-0'
+  bossEncounterStartLives = null
 }
 
 function update(deltaSeconds: number): void {
@@ -186,19 +279,16 @@ function update(deltaSeconds: number): void {
   )
 
   if (progression.enterBossFight) {
-    wave = spawnBossForWave(wave)
-    gameStore.setState({
-      bossEncounter: {
-        active: Boolean(wave.boss),
-        bossId: wave.boss?.id ?? null,
-        health: wave.boss?.health ?? 0,
-        maxHealth: wave.boss?.maxHealth ?? 0
-      }
-    })
+    wave = spawnBossForWave(wave, getBossEncounterAttemptForStage(wave.stage))
+    startBossEncounter(nowMs)
     return
   }
 
   if (progression.enterShop) {
+    if (bossCollisionResult.bossDefeated) {
+      handleBossVictory(nowMs)
+    }
+
     pendingStage = progression.nextStage
 
     const bossPoints = bossCollisionResult.bossDefeated ? (bossBeforeCollision?.points ?? 0) : 0
@@ -236,10 +326,10 @@ function update(deltaSeconds: number): void {
         interruptedRun: null
       },
       bossEncounter: {
+        ...gameStore.getState().bossEncounter,
         active: false,
         bossId: null,
-        health: 0,
-        maxHealth: 0
+        health: 0
       },
       runModifierOffer,
       activePowerUps,
@@ -263,6 +353,10 @@ function update(deltaSeconds: number): void {
   const highScore = Math.max(state.highScore, scoreLives.score)
 
   if (scoreLives.isGameOver) {
+    if (wave.boss || state.bossEncounter.active) {
+      handleBossPlayerDefeat(nowMs)
+    }
+
     gameStore.setState({
       status: 'game-over',
       score: scoreLives.score,
@@ -270,10 +364,13 @@ function update(deltaSeconds: number): void {
       highScore,
       stage: wave.stage,
       bossEncounter: {
-        active: Boolean(wave.boss),
-        bossId: wave.boss?.id ?? null,
+        ...gameStore.getState().bossEncounter,
+        active: false,
+        bossId: wave.boss?.id ?? gameStore.getState().bossEncounter.bossId,
+        stage: wave.boss?.stage ?? gameStore.getState().bossEncounter.stage,
         health: wave.boss?.health ?? 0,
-        maxHealth: wave.boss?.maxHealth ?? 0
+        maxHealth: wave.boss?.maxHealth ?? gameStore.getState().bossEncounter.maxHealth,
+        damageTaken: Math.max(gameStore.getState().bossEncounter.damageTaken, (bossEncounterStartLives ?? state.lives) - scoreLives.lives)
       },
       activePowerUps,
       activeDrops,
@@ -300,10 +397,15 @@ function update(deltaSeconds: number): void {
     highScore,
     stage: wave.stage,
     bossEncounter: {
+      ...state.bossEncounter,
       active: Boolean(wave.boss),
-      bossId: wave.boss?.id ?? null,
+      bossId: wave.boss?.id ?? state.bossEncounter.bossId,
+      stage: wave.boss?.stage ?? state.bossEncounter.stage,
       health: wave.boss?.health ?? 0,
-      maxHealth: wave.boss?.maxHealth ?? 0
+      maxHealth: wave.boss?.maxHealth ?? state.bossEncounter.maxHealth,
+      damageTaken: wave.boss
+        ? Math.max(state.bossEncounter.damageTaken, (bossEncounterStartLives ?? state.lives) - scoreLives.lives)
+        : state.bossEncounter.damageTaken
     },
     activePowerUps,
     activeDrops,
@@ -367,7 +469,7 @@ export function startGame(canvas: HTMLCanvasElement): void {
     return
   }
 
-  resetRoundState(canvas)
+  resetRoundState(canvas, gameStore.getState().stage)
   inputManager.connect(canvas)
 
   loopController = createGameLoop({
@@ -395,14 +497,29 @@ export function startRound(): void {
   }
 
   const state = gameStore.getState()
+  resetRoundState(context.canvas, state.stage)
+
   const nextRunOrdinal = Math.max(1, state.progressionProfile.totalRuns + 1)
   currentRunId = `run-${nextRunOrdinal}`
   currentRunSeed = `${nextRunOrdinal}-${Date.now()}-${state.highScore}`
 
-  player = applyPlayerUpgrades(player, state.upgradeLevels)
+  if (player) {
+    player = applyPlayerUpgrades(player, state.upgradeLevels)
+  }
 
   gameStore.setState({
-    status: 'running'
+    status: 'running',
+    bossEncounter: {
+      ...state.bossEncounter,
+      active: false,
+      bossId: null,
+      health: 0,
+      maxHealth: 0,
+      outcome: 'none',
+      startedAtMs: null,
+      endedAtMs: null,
+      damageTaken: 0
+    }
   })
 
   void getPersistedProgressProfile().then((profile) => {
@@ -475,8 +592,10 @@ export function restartRound(): void {
     return
   }
 
+  const stageToRetry = gameStore.getState().stage
   gameStore.reset()
-  resetRoundState(context.canvas)
+  gameStore.setState({ stage: stageToRetry })
+  resetRoundState(context.canvas, stageToRetry)
   gameStore.setState({
     status: 'running'
   })
@@ -497,6 +616,7 @@ export function continueToNextStage(upgradeLevels: UpgradeLevels): void {
   pendingStage = null
   projectiles = []
   activeDrops = []
+  bossEncounterStartLives = null
 
   if (player) {
     player = applyPlayerUpgrades(player, upgradeLevels)
@@ -513,10 +633,19 @@ export function continueToNextStage(upgradeLevels: UpgradeLevels): void {
     stage: wave.stage,
     upgradeLevels,
     runModifierOffer: null,
-    activeDrops
+    activeDrops,
+    bossEncounter: {
+      ...gameStore.getState().bossEncounter,
+      active: false,
+      bossId: null,
+      health: 0,
+      maxHealth: 0,
+      outcome: 'none',
+      startedAtMs: null,
+      endedAtMs: null,
+      damageTaken: 0
+    }
   })
 
   loopController?.resume()
 }
-
-

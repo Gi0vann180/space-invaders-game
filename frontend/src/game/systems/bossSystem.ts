@@ -1,14 +1,14 @@
 import { createBossForStage, tickBossAttackTimer, type BossEntity } from '../entities/boss'
 import type { WaveState } from './waveSystem'
 
-export function spawnBossForWave(wave: WaveState): WaveState {
+export function spawnBossForWave(wave: WaveState, attempt = 1): WaveState {
   if (wave.boss || wave.enemies.length > 0) {
     return wave
   }
 
   return {
     ...wave,
-    boss: createBossForStage(wave.stage)
+    boss: createBossForStage(wave.stage, attempt)
   }
 }
 
