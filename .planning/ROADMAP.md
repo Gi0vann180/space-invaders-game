@@ -62,7 +62,12 @@ Plans:
   4. Dificuldade de chefes escala de forma perceptível sem picos injustos entre fases consecutivas
   5. Fluxo de transição após vitória/derrota do chefe mantém consistência com progressão da campanha
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md - Boss-every-stage contracts, profiles, and lifecycle state
+- [ ] 02-02-PLAN.md - Boss telemetry and audiovisual outcome feedback wiring
+- [ ] 02-03-PLAN.md - Difficulty fairness guardrails and end-to-end regression gate
 
 **UI hint**: yes
 
@@ -123,7 +128,12 @@ Plans:
   4. Feedback tátil/visual para ações primárias melhora percepção de controle no mobile
   5. Performance e UX se mantêm estáveis em dispositivos alvo mid-range
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md - Boss-every-stage contracts, profiles, and lifecycle state
+- [ ] 02-02-PLAN.md - Boss telemetry and audiovisual outcome feedback wiring
+- [ ] 02-03-PLAN.md - Difficulty fairness guardrails and end-to-end regression gate
 
 **UI hint**: yes
 
@@ -184,5 +194,8 @@ Plans:
 **Roadmap validation**: 14/14 v1 requirements mapped to phases. No orphans. Every requirement has exactly one phase assignment. Coverage complete.
 
 **Next step**: `/gsd:plan-phase 1` to create detailed plan for Phase 1 (Campaign Meta-Layer).
+
+
+
 
 
