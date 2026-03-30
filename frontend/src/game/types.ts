@@ -16,6 +16,12 @@ export type GameStatus = 'idle' | 'running' | 'paused' | 'shop' | 'game-over'
 export type BossEncounterState = {
   active: boolean
   bossId: string | null
+  stage: number | null
+  attempt: number
+  startedAtMs: number | null
+  endedAtMs: number | null
+  outcome: 'none' | 'in-progress' | 'victory' | 'defeat'
+  damageTaken: number
   health: number
   maxHealth: number
 }
@@ -42,6 +48,13 @@ export type RareDropSnapshot = {
 export type ProgressProfileSnapshot = {
   highestUnlockedStage: number
   totalRuns: number
+  lastAttemptedStage: number | null
+  lastCompletedStage: number | null
+  interruptedRun: {
+    stage: number
+    atStatus: 'running' | 'paused'
+    savedAt: string
+  } | null
 }
 
 export type RunModifierOptionSnapshot = {

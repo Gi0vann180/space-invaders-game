@@ -13,8 +13,8 @@ export type ProgressionResult = {
 export function evaluateStageProgression(
   currentStage: number,
   enemiesRemaining: number,
-  bossActive = true,
-  bossDefeated = true
+  bossActive = false,
+  bossDefeated = false
 ): ProgressionResult {
   if (enemiesRemaining > 0) {
     return {
@@ -78,3 +78,4 @@ export function createShopRunModifierOffer(input: {
     upgradeLevels: input.upgradeLevels
   })
 }
+

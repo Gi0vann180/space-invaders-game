@@ -7,6 +7,8 @@ type HUDProps = {
   bossMaxHealth?: number
   captionsEnabled?: boolean
   statusLabel?: string
+  highestUnlockedStage?: number
+  completedCount?: number
 }
 
 export function HUD({
@@ -17,7 +19,9 @@ export function HUD({
   bossHealth,
   bossMaxHealth,
   captionsEnabled = true,
-  statusLabel
+  statusLabel,
+  highestUnlockedStage,
+  completedCount
 }: HUDProps) {
   return (
     <header className="absolute inset-x-0 top-0 z-20 p-3 sm:p-4">
@@ -32,13 +36,19 @@ export function HUD({
           {statusLabel ? <p className="text-indigo-300">{statusLabel}</p> : null}
         </div>
       </div>
+      {typeof highestUnlockedStage === 'number' ? (
+        <div className="mx-auto mt-2 flex w-full max-w-3xl items-center justify-between rounded-md bg-slate-900/80 px-3 py-2 text-xs text-slate-200 sm:text-sm">
+          <p className="font-semibold">Fase mais alta desbloqueada: {highestUnlockedStage}</p>
+          <p className="font-semibold">Fases concluidas: {completedCount ?? 0}</p>
+        </div>
+      ) : null}
       {typeof bossHealth === 'number' && typeof bossMaxHealth === 'number' && bossMaxHealth > 0 ? (
         <div className="mx-auto mt-2 w-full max-w-3xl rounded-md bg-slate-900/80 px-3 py-2 text-xs text-orange-200 sm:text-sm">
           <p className="font-medium">Chefe: {bossHealth}/{bossMaxHealth}</p>
         </div>
       ) : null}
       {captionsEnabled ? (
-        <p className="mx-auto mt-2 w-full max-w-3xl text-center text-xs text-slate-300">Legenda: use ←/→ para mover e espaço para atirar.</p>
+        <p className="mx-auto mt-2 w-full max-w-3xl text-center text-xs text-slate-300">Legenda: use / para mover e espa�o para atirar.</p>
       ) : null}
     </header>
   )

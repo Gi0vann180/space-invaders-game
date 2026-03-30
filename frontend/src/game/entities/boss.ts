@@ -1,4 +1,5 @@
 import { getStageConfig } from '../config/stages'
+import { getBossProfileForStage, type BossFeedbackPreset, type BossMovementModel } from '../config/bossProfiles'
 import { BOSS_HORIZONTAL_SPEED, getCycleDifficultyMultiplier } from '../config/gameplay'
 
 export type BossAttackPatternId = 'burst-3' | 'line-5' | 'targeted-2'
@@ -18,10 +19,15 @@ export type BossEntity = {
   patternIds: BossAttackPatternId[]
   patternCursor: number
   velocityX: number
+  telegraphMs: number
+  movementModel: BossMovementModel
+  feedbackPreset: BossFeedbackPreset
+  attempt: number
 }
 
-export function createBossForStage(stage: number): BossEntity {
+export function createBossForStage(stage: number, attempt = 1): BossEntity {
   const stageConfig = getStageConfig(stage)
+  const profile = getBossProfileForStage(stage, attempt)
 
   return {
     id: `boss-stage-${stage}`,
@@ -35,9 +41,13 @@ export function createBossForStage(stage: number): BossEntity {
     points: stageConfig.bossPoints,
     attackCooldownSeconds: stageConfig.bossAttackIntervalSeconds,
     attackTimer: stageConfig.bossAttackIntervalSeconds,
-    patternIds: [...stageConfig.bossPatternIds],
+    patternIds: profile.attackPatternSequence,
     patternCursor: 0,
-    velocityX: BOSS_HORIZONTAL_SPEED * getCycleDifficultyMultiplier(stage)
+    velocityX: BOSS_HORIZONTAL_SPEED * getCycleDifficultyMultiplier(stage),
+    telegraphMs: profile.telegraphMs,
+    movementModel: profile.movementModel,
+    feedbackPreset: profile.feedbackPreset,
+    attempt
   }
 }
 
