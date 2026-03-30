@@ -1,4 +1,6 @@
 import type { UpgradeLevels } from '../services/shopService'
+import type { BossAttackPatternId } from './entities/boss'
+import type { BossFeedbackPreset, BossMovementModel } from './config/bossProfiles'
 
 export type Vector2 = {
   x: number
@@ -13,9 +15,22 @@ export type InputSnapshot = {
 
 export type GameStatus = 'idle' | 'running' | 'paused' | 'shop' | 'game-over'
 
+export type BossEncounterLifecycle = 'idle' | 'active' | 'victory' | 'defeat'
+
+export type BossEncounterProfileSnapshot = {
+  profileId: string
+  displayName: string
+  movementModel: BossMovementModel
+  feedbackPreset: BossFeedbackPreset
+  telegraphMs: number
+  patternIds: BossAttackPatternId[]
+}
+
 export type BossEncounterState = {
   active: boolean
+  lifecycle: BossEncounterLifecycle
   bossId: string | null
+  profile: BossEncounterProfileSnapshot | null
   stage: number | null
   attempt: number
   startedAtMs: number | null

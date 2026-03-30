@@ -65,7 +65,8 @@ describe('US1 boss stage flow', () => {
         width: 4,
         height: 12,
         speedY: -400,
-        speedX: 0
+        speedX: 0,
+        damage: 1
       }
     ])
 

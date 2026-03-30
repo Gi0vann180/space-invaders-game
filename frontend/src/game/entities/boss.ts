@@ -7,6 +7,8 @@ export type BossAttackPatternId = 'burst-3' | 'line-5' | 'targeted-2'
 export type BossEntity = {
   id: string
   stage: number
+  profileId: string
+  displayName: string
   x: number
   y: number
   width: number
@@ -32,6 +34,8 @@ export function createBossForStage(stage: number, attempt = 1): BossEntity {
   return {
     id: `boss-stage-${stage}`,
     stage,
+    profileId: profile.profileId,
+    displayName: profile.displayName,
     x: 340,
     y: 54,
     width: 110,

@@ -15,6 +15,8 @@ describe('Foundations boss/powerups types', () => {
     const boss = createBossForStage(2)
 
     expect(boss.id).toContain('boss-stage-2')
+    expect(boss.profileId).toBe('phase-2-volt-weaver')
+    expect(boss.displayName).toBe('Volt Weaver')
     expect(boss.health).toBe(boss.maxHealth)
     expect(boss.patternIds.length).toBeGreaterThan(0)
   })

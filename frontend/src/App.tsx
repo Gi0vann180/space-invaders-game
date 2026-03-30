@@ -178,7 +178,7 @@ export default function App() {
           onSelectStage={handleSelectStage}
         />
 
-        <div className="bg-slate-900/60 rounded-lg p-4 shadow-lg">
+        <div className="bg-slate-900/60 rounded-2xl border border-slate-700/70 p-4 shadow-[0_25px_80px_rgba(15,23,42,0.55)]">
           <div className="mb-3 flex items-center justify-between">
             <h1 className="text-2xl font-semibold">Space Invaders - Modern UI</h1>
             <button
@@ -189,7 +189,7 @@ export default function App() {
               Configuracoes
             </button>
           </div>
-          <div className="relative overflow-hidden rounded bg-black">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-700/70 bg-black shadow-[0_0_60px_rgba(14,165,233,0.12)]">
             <HUD
               score={gameState.score}
               lives={gameState.lives}
@@ -208,7 +208,7 @@ export default function App() {
                   : gameState.status
               }
             />
-            <canvas ref={canvasRef} width={800} height={480} className="w-full h-auto rounded bg-black" />
+            <canvas ref={canvasRef} width={800} height={480} className="w-full h-auto rounded-2xl bg-black" />
             <GameOverlay
               status={gameState.status}
               activePowerUps={gameState.activePowerUps}

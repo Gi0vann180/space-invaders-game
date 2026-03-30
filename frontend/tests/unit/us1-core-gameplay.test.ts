@@ -46,7 +46,8 @@ describe('US1 core gameplay', () => {
         width: 4,
         height: 12,
         speedY: -400,
-        speedX: 0
+        speedX: 0,
+        damage: 1
       }
     ]
 
