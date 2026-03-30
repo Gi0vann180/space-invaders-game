@@ -19,6 +19,14 @@ function intersects(
   return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y
 }
 
+function getProjectileDamageAgainstBoss(projectile: ProjectileEntity): number {
+  if (projectile.kind === 'laser') {
+    return Math.min(projectile.damage, 3)
+  }
+
+  return projectile.damage
+}
+
 export function resolvePlayerProjectileCollisions(
   enemies: EnemyEntity[],
   projectiles: ProjectileEntity[]
@@ -156,7 +164,7 @@ export function resolveBossProjectileCollisions(
       continue
     }
 
-    const nextHealth = Math.max(0, nextBoss.health - projectile.damage)
+    const nextHealth = Math.max(0, nextBoss.health - getProjectileDamageAgainstBoss(projectile))
     nextBoss = {
       ...nextBoss,
       health: nextHealth
