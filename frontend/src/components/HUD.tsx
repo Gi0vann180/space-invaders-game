@@ -24,7 +24,7 @@ export function HUD({
   completedCount
 }: HUDProps) {
   return (
-    <header className="absolute inset-x-0 top-0 z-20 p-3 sm:p-4">
+    <div className="mb-3 p-3 sm:p-4">
       <div className="mx-auto flex w-full max-w-3xl items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2 text-xs text-slate-100 shadow-lg backdrop-blur sm:text-sm">
         <div className="flex items-center gap-3 sm:gap-5">
           <p className="font-medium">Score: {score}</p>
@@ -59,6 +59,6 @@ export function HUD({
       {captionsEnabled ? (
         <p className="mx-auto mt-2 w-full max-w-3xl text-center text-xs text-slate-300">Legenda: use / para mover e espa�o para atirar.</p>
       ) : null}
-    </header>
+    </div>
   )
 }

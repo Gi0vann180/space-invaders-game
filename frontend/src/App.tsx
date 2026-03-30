@@ -189,25 +189,25 @@ export default function App() {
               Configuracoes
             </button>
           </div>
+          <HUD
+            score={gameState.score}
+            lives={gameState.lives}
+            stage={gameState.stage}
+            highScore={gameState.highScore}
+            bossHealth={gameState.bossEncounter.active ? gameState.bossEncounter.health : undefined}
+            bossMaxHealth={gameState.bossEncounter.active ? gameState.bossEncounter.maxHealth : undefined}
+            captionsEnabled={settings.captionsEnabled}
+            highestUnlockedStage={gameState.progressionProfile.highestUnlockedStage}
+            completedCount={completedStages.length}
+            statusLabel={
+              gameState.status === 'running'
+                ? isBossStage(gameState.stage)
+                  ? 'boss na fase'
+                  : undefined
+                : gameState.status
+            }
+          />
           <div className="relative overflow-hidden rounded-2xl border border-slate-700/70 bg-black shadow-[0_0_60px_rgba(14,165,233,0.12)]">
-            <HUD
-              score={gameState.score}
-              lives={gameState.lives}
-              stage={gameState.stage}
-              highScore={gameState.highScore}
-              bossHealth={gameState.bossEncounter.active ? gameState.bossEncounter.health : undefined}
-              bossMaxHealth={gameState.bossEncounter.active ? gameState.bossEncounter.maxHealth : undefined}
-              captionsEnabled={settings.captionsEnabled}
-              highestUnlockedStage={gameState.progressionProfile.highestUnlockedStage}
-              completedCount={completedStages.length}
-              statusLabel={
-                gameState.status === 'running'
-                  ? isBossStage(gameState.stage)
-                    ? 'boss na fase'
-                    : undefined
-                  : gameState.status
-              }
-            />
             <canvas ref={canvasRef} width={800} height={480} className="w-full h-auto rounded-2xl bg-black" />
             <GameOverlay
               status={gameState.status}
