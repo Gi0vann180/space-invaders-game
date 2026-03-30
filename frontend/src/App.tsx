@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { CampaignMap } from './components/CampaignMap'
 import { GameOverlay } from './components/GameOverlay'
 import { HUD } from './components/HUD'
 import { SettingsPanel } from './components/SettingsPanel'
@@ -14,9 +15,7 @@ import {
 } from './game/engine'
 import { useVisibilityPause } from './hooks/useVisibilityPause'
 import { setTelemetryConsent } from './lib/telemetry'
-import {
-  getPersistedProgressProfile
-} from './services/shopPersistenceService'
+import { getPersistedProgressProfile, resolveInterruptedRunSnapshot } from './services/shopPersistenceService'
 import { loadSettings, saveSettings } from './services/settingsService'
 import { EMPTY_UPGRADE_LEVELS, listActiveUpgrades, type UpgradeLevels } from './services/shopService'
 import { applyRunModifierSelection, type RunModifierId } from './game/systems/runModifierSystem'
@@ -31,6 +30,13 @@ export default function App() {
   const [settings, setSettings] = useState<GameSettings>(settingsStore.getState())
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [upgradeLevels, setUpgradeLevels] = useState<UpgradeLevels>({ ...EMPTY_UPGRADE_LEVELS })
+  const [showCompletionOverlay, setShowCompletionOverlay] = useState(false)
+  const [showInterruptedRunPrompt, setShowInterruptedRunPrompt] = useState(false)
+
+  const completedStages = useMemo(() => {
+    const completedUntil = Math.max(0, Math.min(5, gameState.progressionProfile.lastCompletedStage ?? 0))
+    return Array.from({ length: completedUntil }, (_, index) => index + 1)
+  }, [gameState.progressionProfile.lastCompletedStage])
 
   if (typeof window !== 'undefined') {
     ;(window as Window & { __GAME_STORE__?: typeof gameStore }).__GAME_STORE__ = gameStore
@@ -63,6 +69,12 @@ export default function App() {
   })
 
   useEffect(() => {
+    if (gameState.status === 'shop') {
+      setShowCompletionOverlay(true)
+    }
+  }, [gameState.status])
+
+  useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -77,15 +89,25 @@ export default function App() {
 
     void getPersistedProgressProfile().then((profile) => {
       const levels = { ...EMPTY_UPGRADE_LEVELS }
+      const fallbackStage = gameStore.getState().stage
+      const interruptedRun = resolveInterruptedRunSnapshot(profile.interruptedRun, fallbackStage)
+
       setUpgradeLevels(levels)
       gameStore.setState({
         upgradeLevels: levels,
         activeUpgrades: listActiveUpgrades(levels),
         progressionProfile: {
           highestUnlockedStage: profile.highestUnlockedStage,
-          totalRuns: profile.totalRuns
+          totalRuns: profile.totalRuns,
+          lastAttemptedStage: profile.lastAttemptedStage,
+          lastCompletedStage: profile.lastCompletedStage,
+          interruptedRun
         }
       })
+
+      if (interruptedRun) {
+        setShowInterruptedRunPrompt(true)
+      }
     })
 
     void loadSettings().then((savedSettings) => {
@@ -111,22 +133,60 @@ export default function App() {
     void saveSettings(nextSettings)
   }
 
+  const handleResumeInterruptedRun = () => {
+    setShowInterruptedRunPrompt(false)
+
+    if (gameStore.getState().status === 'paused') {
+      resumeGame()
+      return
+    }
+
+    startRound()
+  }
+
+  const handleRestartInterruptedRun = () => {
+    setShowInterruptedRunPrompt(false)
+    restartRound()
+  }
+
+  const handleSelectStage = (stage: number) => {
+    if (stage > gameState.progressionProfile.highestUnlockedStage) {
+      return
+    }
+
+    gameStore.setState({
+      stage,
+      progressionProfile: {
+        ...gameState.progressionProfile,
+        lastAttemptedStage: stage,
+        interruptedRun: null
+      }
+    })
+  }
+
   return (
     <div
       className={`min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white flex items-center justify-center ${
         settings.highContrast ? 'high-contrast' : ''
       }`}
     >
-      <div className="w-full max-w-3xl p-4">
+      <div className="w-full max-w-5xl p-4">
+        <CampaignMap
+          highestUnlockedStage={gameState.progressionProfile.highestUnlockedStage}
+          currentStage={gameState.stage}
+          completedStages={completedStages}
+          onSelectStage={handleSelectStage}
+        />
+
         <div className="bg-slate-900/60 rounded-lg p-4 shadow-lg">
           <div className="mb-3 flex items-center justify-between">
-            <h1 className="text-2xl font-semibold">Space Invaders — Modern UI</h1>
+            <h1 className="text-2xl font-semibold">Space Invaders - Modern UI</h1>
             <button
               className="rounded-md bg-slate-700 px-3 py-1.5 text-sm font-medium hover:bg-slate-600"
               onClick={() => setIsSettingsOpen(true)}
               type="button"
             >
-              Configurações
+              Configuracoes
             </button>
           </div>
           <div className="relative overflow-hidden rounded bg-black">
@@ -138,6 +198,8 @@ export default function App() {
               bossHealth={gameState.bossEncounter.active ? gameState.bossEncounter.health : undefined}
               bossMaxHealth={gameState.bossEncounter.active ? gameState.bossEncounter.maxHealth : undefined}
               captionsEnabled={settings.captionsEnabled}
+              highestUnlockedStage={gameState.progressionProfile.highestUnlockedStage}
+              completedCount={completedStages.length}
               statusLabel={
                 gameState.status === 'running'
                   ? isBossStage(gameState.stage)
@@ -153,7 +215,15 @@ export default function App() {
               bossHealth={gameState.bossEncounter.active ? gameState.bossEncounter.health : undefined}
               bossMaxHealth={gameState.bossEncounter.active ? gameState.bossEncounter.maxHealth : undefined}
               nowMs={Date.now()}
+              showCompletion={showCompletionOverlay && gameState.status === 'shop'}
+              showInterruptedRunPrompt={showInterruptedRunPrompt}
               onPrimaryAction={handlePrimaryOverlayAction}
+              onContinueStage={() => {
+                setShowCompletionOverlay(false)
+                continueToNextStage(gameStore.getState().upgradeLevels)
+              }}
+              onResumeInterruptedRun={handleResumeInterruptedRun}
+              onRestartInterruptedRun={handleRestartInterruptedRun}
             />
             {gameState.status === 'shop' ? (
               <ShopScreen
@@ -190,6 +260,7 @@ export default function App() {
                   })
                 }}
                 onContinue={() => {
+                  setShowCompletionOverlay(false)
                   continueToNextStage(gameStore.getState().upgradeLevels)
                 }}
               />

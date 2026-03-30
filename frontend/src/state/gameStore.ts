@@ -16,12 +16,21 @@ const initialState: GameSessionState = {
   bossEncounter: {
     active: false,
     bossId: null,
+    stage: null,
+    attempt: 0,
+    startedAtMs: null,
+    endedAtMs: null,
+    outcome: 'none',
+    damageTaken: 0,
     health: 0,
     maxHealth: 0
   },
   progressionProfile: {
     highestUnlockedStage: 1,
-    totalRuns: 0
+    totalRuns: 0,
+    lastAttemptedStage: null,
+    lastCompletedStage: null,
+    interruptedRun: null
   },
   runModifierOffer: null,
   input: EMPTY_INPUT
@@ -65,3 +74,4 @@ class GameStore {
 }
 
 export const gameStore = new GameStore()
+

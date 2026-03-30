@@ -22,10 +22,10 @@ export const STAGES: StageConfig[] = [
     enemyFireIntervalSeconds: 2,
     enemyProjectileSpeed: 190,
     maxConcurrentEnemyProjectiles: 2,
-    bossHealth: 14,
+    bossHealth: 16,
     bossAttackIntervalSeconds: 1.35,
     bossPatternIds: ['burst-3', 'targeted-2'],
-    bossPoints: 240
+    bossPoints: 260
   },
   {
     stage: 2,
@@ -34,10 +34,10 @@ export const STAGES: StageConfig[] = [
     enemyFireIntervalSeconds: 1.8,
     enemyProjectileSpeed: 220,
     maxConcurrentEnemyProjectiles: 3,
-    bossHealth: 20,
+    bossHealth: 22,
     bossAttackIntervalSeconds: 1.2,
     bossPatternIds: ['line-5', 'burst-3'],
-    bossPoints: 320
+    bossPoints: 340
   },
   {
     stage: 3,
@@ -46,10 +46,10 @@ export const STAGES: StageConfig[] = [
     enemyFireIntervalSeconds: 1.6,
     enemyProjectileSpeed: 245,
     maxConcurrentEnemyProjectiles: 4,
-    bossHealth: 26,
+    bossHealth: 29,
     bossAttackIntervalSeconds: 1.08,
     bossPatternIds: ['targeted-2', 'line-5', 'burst-3'],
-    bossPoints: 420
+    bossPoints: 440
   },
   {
     stage: 4,
@@ -58,10 +58,22 @@ export const STAGES: StageConfig[] = [
     enemyFireIntervalSeconds: 1.4,
     enemyProjectileSpeed: 275,
     maxConcurrentEnemyProjectiles: 5,
-    bossHealth: 34,
+    bossHealth: 37,
     bossAttackIntervalSeconds: 0.98,
     bossPatternIds: ['line-5', 'targeted-2', 'burst-3'],
-    bossPoints: 520
+    bossPoints: 540
+  },
+  {
+    stage: 5,
+    enemySpeedMultiplier: 1.38,
+    enemyRows: 4,
+    enemyFireIntervalSeconds: 1.3,
+    enemyProjectileSpeed: 300,
+    maxConcurrentEnemyProjectiles: 6,
+    bossHealth: 46,
+    bossAttackIntervalSeconds: 0.9,
+    bossPatternIds: ['targeted-2', 'burst-3', 'line-5'],
+    bossPoints: 660
   }
 ]
 

@@ -1,4 +1,5 @@
 export const BOSS_STAGE_INTERVAL = 10
+export const CAMPAIGN_BOSS_STAGE_MAX = 5
 
 export const RARE_DROP_CHANCE_PERCENT = 8
 
@@ -11,6 +12,10 @@ export const CYCLE_DIFFICULTY_STEP = 0.1
 export function isBossStage(stage: number): boolean {
   if (stage < 1) {
     return false
+  }
+
+  if (stage <= CAMPAIGN_BOSS_STAGE_MAX) {
+    return true
   }
 
   return stage % BOSS_STAGE_INTERVAL === 0
