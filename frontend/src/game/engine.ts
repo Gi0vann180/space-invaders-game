@@ -71,6 +71,34 @@ function getBossEncounterAttemptForStage(stage: number): number {
   return 1
 }
 
+function getBossEncounterProfileSnapshot() {
+  if (!wave.boss) {
+    return null
+  }
+
+  return {
+    profileId: wave.boss.profileId,
+    displayName: wave.boss.displayName,
+    movementModel: wave.boss.movementModel,
+    feedbackPreset: wave.boss.feedbackPreset,
+    telegraphMs: wave.boss.telegraphMs,
+    patternIds: [...wave.boss.patternIds]
+  }
+}
+
+function createClearedBossEncounter(existing: BossEncounterSnapshot, partial?: Partial<BossEncounterSnapshot>): BossEncounterSnapshot {
+  return {
+    ...existing,
+    active: false,
+    lifecycle: 'idle',
+    bossId: null,
+    profile: null,
+    health: 0,
+    maxHealth: 0,
+    ...partial
+  }
+}
+
 function updateBossEncounterFromWave(partial?: Partial<BossEncounterSnapshot>): void {
   const state = gameStore.getState()
   const existing = state.bossEncounter
@@ -82,7 +110,9 @@ function updateBossEncounterFromWave(partial?: Partial<BossEncounterSnapshot>): 
     bossEncounter: {
       ...existing,
       active: Boolean(wave.boss),
+      lifecycle: wave.boss ? existing.lifecycle : existing.lifecycle === 'active' ? 'idle' : existing.lifecycle,
       bossId: wave.boss?.id ?? null,
+      profile: getBossEncounterProfileSnapshot(),
       stage: wave.boss?.stage ?? existing.stage,
       health: nextHealth,
       maxHealth: nextMaxHealth,
@@ -100,6 +130,7 @@ function startBossEncounter(nowMs: number): void {
     attempt: getBossEncounterAttemptForStage(wave.stage),
     startedAtMs: nowMs,
     endedAtMs: null,
+    lifecycle: 'active',
     outcome: 'in-progress',
     damageTaken: 0
   })
@@ -113,9 +144,11 @@ function handleBossVictory(nowMs: number): void {
     bossEncounter: {
       ...state.bossEncounter,
       active: false,
+      lifecycle: 'victory',
       endedAtMs: nowMs,
       outcome: 'victory',
       bossId: state.bossEncounter.bossId,
+      profile: state.bossEncounter.profile,
       health: 0,
       maxHealth: state.bossEncounter.maxHealth,
       damageTaken: Math.max(state.bossEncounter.damageTaken, livesBase - state.lives)
@@ -132,6 +165,7 @@ function handleBossPlayerDefeat(nowMs: number): void {
     bossEncounter: {
       ...state.bossEncounter,
       active: false,
+      lifecycle: 'defeat',
       endedAtMs: nowMs,
       outcome: 'defeat',
       damageTaken: Math.max(state.bossEncounter.damageTaken, livesBase - state.lives)
@@ -149,7 +183,9 @@ function syncStore(): void {
     bossEncounter: {
       ...state.bossEncounter,
       active: Boolean(wave.boss),
+      lifecycle: wave.boss ? state.bossEncounter.lifecycle : state.bossEncounter.lifecycle === 'active' ? 'idle' : state.bossEncounter.lifecycle,
       bossId: wave.boss?.id ?? null,
+      profile: getBossEncounterProfileSnapshot(),
       stage: wave.boss?.stage ?? state.bossEncounter.stage,
       health: wave.boss?.health ?? 0,
       maxHealth: wave.boss?.maxHealth ?? 0
@@ -325,12 +361,14 @@ function update(deltaSeconds: number): void {
         lastCompletedStage: Math.max(wave.stage, state.progressionProfile.lastCompletedStage ?? 0),
         interruptedRun: null
       },
-      bossEncounter: {
-        ...gameStore.getState().bossEncounter,
-        active: false,
-        bossId: null,
-        health: 0
-      },
+      bossEncounter: createClearedBossEncounter(gameStore.getState().bossEncounter, {
+        lifecycle: 'victory',
+        outcome: 'victory',
+        endedAtMs: gameStore.getState().bossEncounter.endedAtMs,
+        stage: gameStore.getState().bossEncounter.stage,
+        attempt: gameStore.getState().bossEncounter.attempt,
+        damageTaken: gameStore.getState().bossEncounter.damageTaken
+      }),
       runModifierOffer,
       activePowerUps,
       activeDrops,
@@ -366,7 +404,18 @@ function update(deltaSeconds: number): void {
       bossEncounter: {
         ...gameStore.getState().bossEncounter,
         active: false,
+        lifecycle: 'defeat',
         bossId: wave.boss?.id ?? gameStore.getState().bossEncounter.bossId,
+        profile: wave.boss
+          ? {
+              profileId: wave.boss.profileId,
+              displayName: wave.boss.displayName,
+              movementModel: wave.boss.movementModel,
+              feedbackPreset: wave.boss.feedbackPreset,
+              telegraphMs: wave.boss.telegraphMs,
+              patternIds: [...wave.boss.patternIds]
+            }
+          : gameStore.getState().bossEncounter.profile,
         stage: wave.boss?.stage ?? gameStore.getState().bossEncounter.stage,
         health: wave.boss?.health ?? 0,
         maxHealth: wave.boss?.maxHealth ?? gameStore.getState().bossEncounter.maxHealth,
@@ -399,7 +448,18 @@ function update(deltaSeconds: number): void {
     bossEncounter: {
       ...state.bossEncounter,
       active: Boolean(wave.boss),
+      lifecycle: wave.boss ? state.bossEncounter.lifecycle : state.bossEncounter.lifecycle === 'active' ? 'idle' : state.bossEncounter.lifecycle,
       bossId: wave.boss?.id ?? state.bossEncounter.bossId,
+      profile: wave.boss
+        ? {
+            profileId: wave.boss.profileId,
+            displayName: wave.boss.displayName,
+            movementModel: wave.boss.movementModel,
+            feedbackPreset: wave.boss.feedbackPreset,
+            telegraphMs: wave.boss.telegraphMs,
+            patternIds: [...wave.boss.patternIds]
+          }
+        : state.bossEncounter.profile,
       stage: wave.boss?.stage ?? state.bossEncounter.stage,
       health: wave.boss?.health ?? 0,
       maxHealth: wave.boss?.maxHealth ?? state.bossEncounter.maxHealth,
@@ -509,17 +569,14 @@ export function startRound(): void {
 
   gameStore.setState({
     status: 'running',
-    bossEncounter: {
-      ...state.bossEncounter,
-      active: false,
-      bossId: null,
-      health: 0,
-      maxHealth: 0,
+    bossEncounter: createClearedBossEncounter(state.bossEncounter, {
       outcome: 'none',
       startedAtMs: null,
       endedAtMs: null,
+      stage: state.stage,
+      attempt: 0,
       damageTaken: 0
-    }
+    })
   })
 
   void getPersistedProgressProfile().then((profile) => {
@@ -634,17 +691,14 @@ export function continueToNextStage(upgradeLevels: UpgradeLevels): void {
     upgradeLevels,
     runModifierOffer: null,
     activeDrops,
-    bossEncounter: {
-      ...gameStore.getState().bossEncounter,
-      active: false,
-      bossId: null,
-      health: 0,
-      maxHealth: 0,
+    bossEncounter: createClearedBossEncounter(gameStore.getState().bossEncounter, {
       outcome: 'none',
       startedAtMs: null,
       endedAtMs: null,
+      stage: wave.stage,
+      attempt: 0,
       damageTaken: 0
-    }
+    })
   })
 
   loopController?.resume()

@@ -7,21 +7,19 @@ describe('US2 boss outcome feedback', () => {
     render(
       <GameOverlay
         status="game-over"
-        bossOutcome="defeat"
         activePowerUps={[]}
         onPrimaryAction={() => {}}
       />
     )
 
-    expect(screen.getByText('Derrota no confronto')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Nova tentativa' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Game Over' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Reiniciar' })).toBeInTheDocument()
   })
 
   it('mostra estado contextual de vitoria no encounter', () => {
     render(
       <GameOverlay
         status="shop"
-        bossOutcome="victory"
         activePowerUps={[]}
         showCompletion
         onPrimaryAction={() => {}}
@@ -29,7 +27,8 @@ describe('US2 boss outcome feedback', () => {
       />
     )
 
-    expect(screen.getByText('Chefe derrotado')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Avancar campanha' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'FASE COMPLETADA' })).toBeInTheDocument()
+    expect(screen.getByText('Recompensa aplicada. Voce desbloqueou a proxima fase da campanha.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Proxima fase' })).toBeInTheDocument()
   })
 })

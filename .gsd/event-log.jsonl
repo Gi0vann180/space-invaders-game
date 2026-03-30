@@ -1,0 +1,2 @@
+{"cmd":"complete-slice","params":{"milestoneId":"M001","sliceId":"S01"},"ts":"2026-03-30T18:45:57.382Z","actor":"agent","hash":"92302f4ab3d641a7","session_id":"c100e83f-feb9-4e84-a0e6-4251012611ad"}
+{"cmd":"complete-task","params":{"milestoneId":"M001","sliceId":"S02","taskId":"T01"},"ts":"2026-03-30T18:55:41.309Z","actor":"agent","hash":"cdfb261a3cee2da1","session_id":"c100e83f-feb9-4e84-a0e6-4251012611ad"}

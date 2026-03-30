@@ -15,7 +15,9 @@ const initialState: GameSessionState = {
   activeDrops: [],
   bossEncounter: {
     active: false,
+    lifecycle: 'idle',
     bossId: null,
+    profile: null,
     stage: null,
     attempt: 0,
     startedAtMs: null,
