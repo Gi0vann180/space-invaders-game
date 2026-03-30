@@ -1,6 +1,6 @@
 import { canBossAttack, consumeBossAttack, getCurrentBossPatternId } from '../entities/boss'
 import { getCycleDifficultyMultiplier } from '../config/gameplay'
-import { createEnemyProjectile, type ProjectileEntity } from '../entities/projectile'
+import { createBossProjectile, type ProjectileEntity } from '../entities/projectile'
 import type { WaveState } from './waveSystem'
 
 type BossAttackResult = {
@@ -26,11 +26,11 @@ function getPatternProjectiles(
   if (patternId === 'line-5') {
     return [
       ...projectiles,
-      createEnemyProjectile(centerX - 30, spawnY, 280 * cycleMultiplier),
-      createEnemyProjectile(centerX - 15, spawnY, 280 * cycleMultiplier),
-      createEnemyProjectile(centerX, spawnY, 280 * cycleMultiplier),
-      createEnemyProjectile(centerX + 15, spawnY, 280 * cycleMultiplier),
-      createEnemyProjectile(centerX + 30, spawnY, 280 * cycleMultiplier)
+      createBossProjectile(centerX - 30, spawnY, 280 * cycleMultiplier, boss.stage),
+      createBossProjectile(centerX - 15, spawnY, 280 * cycleMultiplier, boss.stage),
+      createBossProjectile(centerX, spawnY, 280 * cycleMultiplier, boss.stage),
+      createBossProjectile(centerX + 15, spawnY, 280 * cycleMultiplier, boss.stage),
+      createBossProjectile(centerX + 30, spawnY, 280 * cycleMultiplier, boss.stage)
     ]
   }
 
@@ -38,16 +38,16 @@ function getPatternProjectiles(
     const offset = playerCenterX >= centerX ? 16 : -16
     return [
       ...projectiles,
-      createEnemyProjectile(centerX + offset, spawnY, 300 * cycleMultiplier),
-      createEnemyProjectile(centerX, spawnY, 300 * cycleMultiplier)
+      createBossProjectile(centerX + offset, spawnY, 300 * cycleMultiplier, boss.stage),
+      createBossProjectile(centerX, spawnY, 300 * cycleMultiplier, boss.stage)
     ]
   }
 
   return [
     ...projectiles,
-    createEnemyProjectile(centerX - 12, spawnY, 260 * cycleMultiplier),
-    createEnemyProjectile(centerX, spawnY, 260 * cycleMultiplier),
-    createEnemyProjectile(centerX + 12, spawnY, 260 * cycleMultiplier)
+    createBossProjectile(centerX - 12, spawnY, 260 * cycleMultiplier, boss.stage),
+    createBossProjectile(centerX, spawnY, 260 * cycleMultiplier, boss.stage),
+    createBossProjectile(centerX + 12, spawnY, 260 * cycleMultiplier, boss.stage)
   ]
 }
 

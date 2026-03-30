@@ -71,6 +71,26 @@ export function createEnemyProjectile(enemyX: number, enemyY: number, speedY: nu
   }
 }
 
+export function createBossProjectile(
+  bossX: number,
+  bossY: number,
+  speedY: number,
+  _stage: number
+): ProjectileEntity {
+  return {
+    id: `b-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    origin: 'enemy',
+    kind: 'default',
+    x: bossX,
+    y: bossY,
+    width: 6,
+    height: 14,
+    speedY,
+    speedX: 0,
+    damage: 2
+  }
+}
+
 export function steerHomingProjectiles(
   projectiles: ProjectileEntity[],
   targetX: number | null,
