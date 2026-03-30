@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-30T20:23:43.786Z"
+last_updated: "2026-03-30T20:45:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 1
@@ -125,6 +125,7 @@ None identified. Phase 01 is closed and the roadmap is ready for Phase 02 execut
 |---|-------------|------|--------|-----------|
 | 260330-n5i | Improve space background, bosses, blocks design and fix boss respawn bug | 2026-03-30 | a277b3e | [260330-n5i-improve-space-background-bosses-blocks-d](./quick/260330-n5i-improve-space-background-bosses-blocks-d/) |
 | 260330-ng5 | Rebalance boss damage (2x) and move HUD above canvas | 2026-03-30 | c7c622f | [260330-ng5-rebalance-boss-damage-for-challenge-and-](./quick/260330-ng5-rebalance-boss-damage-for-challenge-and-/) |
+| 260330-od8 | Rebalance early bosses and make rare drop rewards visible | 2026-03-30 | 82f2f14 | [260330-od8-2-melhorias-1-o-game-est-desbalanceado-o](./quick/260330-od8-2-melhorias-1-o-game-est-desbalanceado-o/) |
 
 ### Assumptions Made
 
@@ -140,6 +141,7 @@ None identified. Phase 01 is closed and the roadmap is ready for Phase 02 execut
 
 **Last Work Session**: 2026-03-30 (current)
 
+- Completed quick task `260330-od8` to toughen early bosses and surface rare-drop pickup rewards with immediate gameplay feedback
 - Confirmed both Phase 01 plans were already executed and summarized on disk
 - Confirmed `01-VERIFICATION.md` passed with full UAT coverage and no unresolved gaps
 - Updated tracking artifacts so roadmap, state, requirements, and project context now reflect completed Phase 01 work
