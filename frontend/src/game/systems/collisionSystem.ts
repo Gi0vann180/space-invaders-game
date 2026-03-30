@@ -42,7 +42,7 @@ export function resolvePlayerProjectileCollisions(
     }
 
     const hitEnemy = remainingEnemies[hitIndex]
-    const nextHealth = hitEnemy.health - 1
+    const nextHealth = hitEnemy.health - projectile.damage
 
     if (nextHealth <= 0) {
       remainingEnemies.splice(hitIndex, 1)
@@ -118,7 +118,8 @@ export function resolveEnemyProjectileHitsPlayer(
 
 export function resolveBossProjectileCollisions(
   boss: BossEntity | null,
-  projectiles: ProjectileEntity[]
+  projectiles: ProjectileEntity[],
+  deltaSeconds = 0
 ): {
   boss: BossEntity | null
   projectiles: ProjectileEntity[]
@@ -141,12 +142,21 @@ export function resolveBossProjectileCollisions(
       continue
     }
 
-    if (!intersects(projectile, nextBoss)) {
+    const previousY = projectile.y - projectile.speedY * deltaSeconds
+    const sweptTop = Math.min(previousY, projectile.y)
+    const sweptBottom = Math.max(previousY + projectile.height, projectile.y + projectile.height)
+    const sweptProjectile = {
+      ...projectile,
+      y: sweptTop,
+      height: sweptBottom - sweptTop
+    }
+
+    if (!intersects(sweptProjectile, nextBoss)) {
       remainingProjectiles.push(projectile)
       continue
     }
 
-    const nextHealth = Math.max(0, nextBoss.health - 1)
+    const nextHealth = Math.max(0, nextBoss.health - projectile.damage)
     nextBoss = {
       ...nextBoss,
       health: nextHealth

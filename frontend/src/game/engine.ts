@@ -35,6 +35,7 @@ import { createShopRunModifierOffer, evaluateStageProgression } from './systems/
 import { addOrRefreshPowerUp, getActiveWeaponPowerUp, removeExpiredPowerUps } from './systems/powerUpSystem'
 import { updateScoreAndLives } from './systems/scoreLivesSystem'
 import { applyPlayerUpgrades } from './systems/upgradeSystem'
+import { renderScene } from './rendering/arcadeRenderer'
 import {
   applyWaveEnemies,
   createDropsFromDefeatedEnemies,
@@ -287,7 +288,7 @@ function update(deltaSeconds: number): void {
   projectiles = collisionResult.projectiles
 
   const bossBeforeCollision = wave.boss
-  const bossCollisionResult = resolveBossProjectileCollisions(wave.boss, projectiles)
+  const bossCollisionResult = resolveBossProjectileCollisions(wave.boss, projectiles, deltaSeconds)
   wave = {
     ...wave,
     boss: bossCollisionResult.boss
@@ -478,33 +479,16 @@ function render(): void {
     return
   }
 
-  const { canvas } = context
-  context.clearRect(0, 0, canvas.width, canvas.height)
-  context.fillStyle = '#020617'
-  context.fillRect(0, 0, canvas.width, canvas.height)
-
-  context.fillStyle = '#38bdf8'
-  context.fillRect(player.x, player.y, player.width, player.height)
-
-  context.fillStyle = '#a3e635'
-  for (const enemy of wave.enemies) {
-    context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
-  }
-
-  if (wave.boss) {
-    context.fillStyle = '#f97316'
-    context.fillRect(wave.boss.x, wave.boss.y, wave.boss.width, wave.boss.height)
-  }
-
-  context.fillStyle = '#f8fafc'
-  for (const projectile of projectiles) {
-    context.fillRect(projectile.x, projectile.y, projectile.width, projectile.height)
-  }
-
-  context.fillStyle = '#fbbf24'
-  for (const drop of activeDrops) {
-    context.fillRect(drop.x, drop.y, drop.width, drop.height)
-  }
+  renderScene({
+    context,
+    nowMs: performance.now(),
+    stage: wave.stage,
+    player,
+    enemies: wave.enemies,
+    boss: wave.boss,
+    projectiles,
+    activeDrops
+  })
 }
 
 function pauseGameLoop(): void {
