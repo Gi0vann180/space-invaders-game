@@ -37,6 +37,16 @@ export function evaluateStageProgression(
     }
   }
 
+  if (bossDefeated) {
+    const nextStage = currentStage + 1
+    return {
+      enterShop: true,
+      enterBossFight: false,
+      nextStage,
+      nextStageConfig: getStageConfig(nextStage)
+    }
+  }
+
   if (!bossActive) {
     return {
       enterShop: false,
@@ -46,22 +56,12 @@ export function evaluateStageProgression(
     }
   }
 
-  if (!bossDefeated) {
-    return {
-      enterShop: false,
-      enterBossFight: false,
-      nextStage: currentStage,
-      nextStageConfig: getStageConfig(currentStage)
-    }
-  }
-
-  const nextStage = currentStage + 1
-
+  // Boss fight in progress
   return {
-    enterShop: true,
+    enterShop: false,
     enterBossFight: false,
-    nextStage,
-    nextStageConfig: getStageConfig(nextStage)
+    nextStage: currentStage,
+    nextStageConfig: getStageConfig(currentStage)
   }
 }
 
