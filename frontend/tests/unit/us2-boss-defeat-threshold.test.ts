@@ -24,7 +24,8 @@ describe('US2 boss defeat threshold', () => {
         width: 4,
         height: 12,
         speedY: -420,
-        speedX: 0
+        speedX: 0,
+        damage: 1
       }
     ])
 

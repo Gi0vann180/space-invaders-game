@@ -4,6 +4,8 @@ export function makeBossFixture(partial: Partial<BossEntity> = {}): BossEntity {
   return {
     id: 'boss-stage-1',
     stage: 1,
+    profileId: 'phase-1-sentinel',
+    displayName: 'Sentinel Ember',
     x: 320,
     y: 64,
     width: 96,

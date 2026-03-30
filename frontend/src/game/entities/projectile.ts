@@ -8,6 +8,7 @@ export type ProjectileEntity = {
   height: number
   speedY: number
   speedX: number
+  damage: number
 }
 
 export function createPlayerProjectile(playerX: number, playerY: number): ProjectileEntity {
@@ -20,7 +21,8 @@ export function createPlayerProjectile(playerX: number, playerY: number): Projec
     width: 4,
     height: 12,
     speedY: -440,
-    speedX: 0
+    speedX: 0,
+    damage: 2
   }
 }
 
@@ -34,7 +36,8 @@ export function createLaserProjectile(playerX: number, playerY: number): Project
     width: 8,
     height: 18,
     speedY: -520,
-    speedX: 0
+    speedX: 0,
+    damage: 4
   }
 }
 
@@ -48,7 +51,8 @@ export function createHomingMissileProjectile(playerX: number, playerY: number):
     width: 6,
     height: 14,
     speedY: -420,
-    speedX: 0
+    speedX: 0,
+    damage: 3
   }
 }
 
@@ -62,7 +66,8 @@ export function createEnemyProjectile(enemyX: number, enemyY: number, speedY: nu
     width: 4,
     height: 12,
     speedY,
-    speedX: 0
+    speedX: 0,
+    damage: 1
   }
 }
 
