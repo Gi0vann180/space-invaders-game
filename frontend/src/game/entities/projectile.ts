@@ -74,8 +74,7 @@ export function createEnemyProjectile(enemyX: number, enemyY: number, speedY: nu
 export function createBossProjectile(
   bossX: number,
   bossY: number,
-  speedY: number,
-  _stage: number
+  speedY: number
 ): ProjectileEntity {
   return {
     id: `b-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,

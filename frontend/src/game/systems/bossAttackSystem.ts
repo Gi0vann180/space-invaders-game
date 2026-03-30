@@ -26,11 +26,11 @@ function getPatternProjectiles(
   if (patternId === 'line-5') {
     return [
       ...projectiles,
-      createBossProjectile(centerX - 30, spawnY, 280 * cycleMultiplier, boss.stage),
-      createBossProjectile(centerX - 15, spawnY, 280 * cycleMultiplier, boss.stage),
-      createBossProjectile(centerX, spawnY, 280 * cycleMultiplier, boss.stage),
-      createBossProjectile(centerX + 15, spawnY, 280 * cycleMultiplier, boss.stage),
-      createBossProjectile(centerX + 30, spawnY, 280 * cycleMultiplier, boss.stage)
+      createBossProjectile(centerX - 30, spawnY, 280 * cycleMultiplier),
+      createBossProjectile(centerX - 15, spawnY, 280 * cycleMultiplier),
+      createBossProjectile(centerX, spawnY, 280 * cycleMultiplier),
+      createBossProjectile(centerX + 15, spawnY, 280 * cycleMultiplier),
+      createBossProjectile(centerX + 30, spawnY, 280 * cycleMultiplier)
     ]
   }
 
@@ -38,16 +38,16 @@ function getPatternProjectiles(
     const offset = playerCenterX >= centerX ? 16 : -16
     return [
       ...projectiles,
-      createBossProjectile(centerX + offset, spawnY, 300 * cycleMultiplier, boss.stage),
-      createBossProjectile(centerX, spawnY, 300 * cycleMultiplier, boss.stage)
+      createBossProjectile(centerX + offset, spawnY, 300 * cycleMultiplier),
+      createBossProjectile(centerX, spawnY, 300 * cycleMultiplier)
     ]
   }
 
   return [
     ...projectiles,
-    createBossProjectile(centerX - 12, spawnY, 260 * cycleMultiplier, boss.stage),
-    createBossProjectile(centerX, spawnY, 260 * cycleMultiplier, boss.stage),
-    createBossProjectile(centerX + 12, spawnY, 260 * cycleMultiplier, boss.stage)
+    createBossProjectile(centerX - 12, spawnY, 260 * cycleMultiplier),
+    createBossProjectile(centerX, spawnY, 260 * cycleMultiplier),
+    createBossProjectile(centerX + 12, spawnY, 260 * cycleMultiplier)
   ]
 }
 
