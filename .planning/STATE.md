@@ -120,6 +120,7 @@ None identified. Roadmap is clear and ready for Phase 1 planning.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260330-n5i | Improve space background, bosses, blocks design and fix boss respawn bug | 2026-03-30 | a277b3e | [260330-n5i-improve-space-background-bosses-blocks-d](./quick/260330-n5i-improve-space-background-bosses-blocks-d/) |
+| 260330-ng5 | Rebalance boss damage (2x) and move HUD above canvas | 2026-03-30 | c7c622f | [260330-ng5-rebalance-boss-damage-for-challenge-and-](./quick/260330-ng5-rebalance-boss-damage-for-challenge-and-/) |
 
 ### Assumptions Made
 
