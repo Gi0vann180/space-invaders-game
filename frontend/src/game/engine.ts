@@ -4,12 +4,16 @@ import {
   getPersistedProgressProfile,
   savePersistedProgressProfile
 } from '../services/shopPersistenceService'
+import { playAudioCue, vibrate } from '../services/audioService'
 import type { UpgradeLevels } from '../services/shopService'
+import { settingsStore } from '../state/settingsStore'
 import { getCycleIndex, isBossStage } from './config/gameplay'
+import type { BossFeedbackPreset } from './config/bossProfiles'
 import { createEnemyGrid } from './entities/enemy'
 import { clampActiveDropsByStage } from './config/performance'
 import type { RareDropEntity } from './entities/dropItem'
 import { createPlayer, movePlayer, tickPlayer, tryConsumeShot, type PlayerEntity } from './entities/player'
+import type { BossEntity } from './entities/boss'
 import {
   createHomingMissileProjectile,
   createLaserProjectile,
@@ -21,6 +25,12 @@ import {
 import { createInputManager } from './input/inputManager'
 import { createGameLoop, type GameLoopController } from './loop'
 import { gameStore } from '../state/gameStore'
+import {
+  emitBossEncounterStarted,
+  emitBossPlayerDefeated,
+  emitBossPlayerVictory,
+  resetBossTelemetryDedupe
+} from './systems/bossEncounterTelemetry'
 import {
   checkEnemyReachedPlayerLine,
   resolveBossProjectileCollisions,
@@ -67,7 +77,17 @@ let currentRunId = 'run-0'
 let currentRunSeed = 'seed-0'
 let bossEncounterStartLives: number | null = null
 
+const bossFeedbackVibrationDurations: Record<BossFeedbackPreset, Record<'hit' | 'victory' | 'defeat', number>> = {
+  ember: { hit: 12, victory: 22, defeat: 28 },
+  volt: { hit: 10, victory: 20, defeat: 24 },
+  frost: { hit: 14, victory: 24, defeat: 30 },
+  nova: { hit: 16, victory: 26, defeat: 32 },
+  void: { hit: 18, victory: 30, defeat: 36 }
+}
+
 type BossEncounterSnapshot = ReturnType<typeof gameStore.getState>['bossEncounter']
+
+type BossTelemetryContext = Pick<BossEntity, 'id' | 'maxHealth' | 'feedbackPreset' | 'attempt' | 'stage'>
 
 function getBossEncounterAttemptForStage(stage: number): number {
   const encounter = gameStore.getState().bossEncounter
@@ -129,6 +149,14 @@ function updateBossEncounterFromWave(partial?: Partial<BossEncounterSnapshot>): 
   })
 }
 
+function triggerBossFeedback(kind: 'hit' | 'victory' | 'defeat', feedbackPreset?: BossFeedbackPreset | null): void {
+  const settings = settingsStore.getState()
+  const preset = feedbackPreset && feedbackPreset in bossFeedbackVibrationDurations ? feedbackPreset : 'ember'
+
+  playAudioCue(kind === 'victory' ? 'boss-victory' : kind === 'defeat' ? 'boss-defeat' : 'boss-hit', settings.audioEnabled)
+  vibrate(bossFeedbackVibrationDurations[preset][kind], settings.vibrationEnabled)
+}
+
 function startBossEncounter(nowMs: number): void {
   const state = gameStore.getState()
   bossEncounterStartLives = state.lives
@@ -141,9 +169,18 @@ function startBossEncounter(nowMs: number): void {
     outcome: 'in-progress',
     damageTaken: 0
   })
+
+  if (wave.boss) {
+    void emitBossEncounterStarted({
+      stage: wave.boss.stage,
+      bossId: wave.boss.id,
+      attempt: wave.boss.attempt,
+      bossHealthMax: wave.boss.maxHealth
+    })
+  }
 }
 
-function handleBossVictory(nowMs: number): void {
+function handleBossVictory(nowMs: number, bossContext?: BossTelemetryContext | null): void {
   const state = gameStore.getState()
   const livesBase = bossEncounterStartLives ?? state.lives
 
@@ -161,10 +198,23 @@ function handleBossVictory(nowMs: number): void {
       damageTaken: Math.max(state.bossEncounter.damageTaken, livesBase - state.lives)
     }
   })
+
+  triggerBossFeedback('victory', bossContext?.feedbackPreset ?? state.bossEncounter.profile?.feedbackPreset ?? null)
+
+  const bossId = bossContext?.id ?? state.bossEncounter.bossId
+  if (bossId) {
+    void emitBossPlayerVictory({
+      stage: bossContext?.stage ?? state.bossEncounter.stage ?? state.stage,
+      bossId,
+      attempt: bossContext?.attempt ?? state.bossEncounter.attempt,
+      bossHealthMax: bossContext?.maxHealth ?? state.bossEncounter.maxHealth
+    })
+  }
+
   bossEncounterStartLives = null
 }
 
-function handleBossPlayerDefeat(nowMs: number): void {
+function handleBossPlayerDefeat(nowMs: number, bossContext?: BossTelemetryContext | null): void {
   const state = gameStore.getState()
   const livesBase = bossEncounterStartLives ?? state.lives
 
@@ -178,6 +228,19 @@ function handleBossPlayerDefeat(nowMs: number): void {
       damageTaken: Math.max(state.bossEncounter.damageTaken, livesBase - state.lives)
     }
   })
+
+  triggerBossFeedback('defeat', bossContext?.feedbackPreset ?? state.bossEncounter.profile?.feedbackPreset ?? null)
+
+  const bossId = bossContext?.id ?? state.bossEncounter.bossId
+  if (bossId) {
+    void emitBossPlayerDefeated({
+      stage: bossContext?.stage ?? state.bossEncounter.stage ?? state.stage,
+      bossId,
+      attempt: bossContext?.attempt ?? state.bossEncounter.attempt,
+      bossHealthMax: bossContext?.maxHealth ?? state.bossEncounter.maxHealth
+    })
+  }
+
   bossEncounterStartLives = null
 }
 
@@ -265,6 +328,8 @@ function update(deltaSeconds: number): void {
       } else {
         projectiles.push(createPlayerProjectile(player.x + player.width / 2 - 2, player.y - 10))
       }
+
+      playAudioCue('shot-fired', settingsStore.getState().audioEnabled)
     }
   }
 
@@ -282,7 +347,17 @@ function update(deltaSeconds: number): void {
   wave = bossShotResult.wave
   projectiles = bossShotResult.projectiles
 
+  const playerProjectilesBeforeEnemyCollision = projectiles.filter((projectile) => projectile.origin === 'player').length
   const collisionResult = resolvePlayerProjectileCollisions(wave.enemies, projectiles)
+  const playerProjectilesAfterEnemyCollision = collisionResult.projectiles.filter((projectile) => projectile.origin === 'player').length
+  const enemyCollisionCount = Math.max(0, playerProjectilesBeforeEnemyCollision - playerProjectilesAfterEnemyCollision)
+
+  if (collisionResult.defeatedEnemyCount > 0) {
+    playAudioCue('enemy-destroyed', settingsStore.getState().audioEnabled)
+  } else if (enemyCollisionCount > 0) {
+    playAudioCue('enemy-hit', settingsStore.getState().audioEnabled)
+  }
+
   if (collisionResult.defeatedEnemies.length > 0) {
     const spawnedDrops = createDropsFromDefeatedEnemies(collisionResult.defeatedEnemies, nowMs)
 
@@ -303,12 +378,18 @@ function update(deltaSeconds: number): void {
   }
   projectiles = bossCollisionResult.projectiles
 
+  if (bossCollisionResult.bossHit) {
+    triggerBossFeedback('hit', bossBeforeCollision?.feedbackPreset ?? state.bossEncounter.profile?.feedbackPreset ?? null)
+  }
+
   const playerHitResult = resolveEnemyProjectileHitsPlayer(player, projectiles, deltaSeconds, false)
   projectiles = playerHitResult.projectiles
 
   const dropCollision = resolvePlayerDropCollisions(player, activeDrops)
   activeDrops = dropCollision.drops
   if (dropCollision.collectedShots.length > 0) {
+    playAudioCue('rare-drop-collected', settingsStore.getState().audioEnabled)
+
     for (const shotType of dropCollision.collectedShots) {
       const currentWeapon = getActiveWeaponPowerUp(activePowerUps)
       const resolvedShot = resolveCollectedSpecialShot(shotType, currentWeapon)
@@ -338,7 +419,7 @@ function update(deltaSeconds: number): void {
 
   if (progression.enterShop) {
     if (bossCollisionResult.bossDefeated) {
-      handleBossVictory(nowMs)
+      handleBossVictory(nowMs, bossBeforeCollision)
     }
 
     pendingStage = progression.nextStage
@@ -409,7 +490,9 @@ function update(deltaSeconds: number): void {
 
   if (scoreLives.isGameOver) {
     if (wave.boss || state.bossEncounter.active) {
-      handleBossPlayerDefeat(nowMs)
+      handleBossPlayerDefeat(nowMs, wave.boss)
+    } else {
+      playAudioCue('game-over', settingsStore.getState().audioEnabled)
     }
 
     gameStore.setState({
@@ -564,6 +647,8 @@ export function startRound(): void {
   const nextRunOrdinal = Math.max(1, state.progressionProfile.totalRuns + 1)
   currentRunId = `run-${nextRunOrdinal}`
   currentRunSeed = `${nextRunOrdinal}-${Date.now()}-${state.highScore}`
+  // New runs restart encounter attempts from a clean telemetry dedupe window.
+  resetBossTelemetryDedupe()
 
   if (player) {
     player = applyPlayerUpgrades(player, state.upgradeLevels)
@@ -653,8 +738,20 @@ export function restartRound(): void {
   }
 
   const stageToRetry = gameStore.getState().stage
+  // Retry runs should re-emit boss telemetry for the fresh attempt sequence.
+  resetBossTelemetryDedupe()
   gameStore.reset()
-  gameStore.setState({ stage: stageToRetry })
+  gameStore.setState({
+    stage: stageToRetry,
+    bossEncounter: createClearedBossEncounter(gameStore.getState().bossEncounter, {
+      outcome: 'none',
+      startedAtMs: null,
+      endedAtMs: null,
+      stage: stageToRetry,
+      attempt: 0,
+      damageTaken: 0
+    })
+  })
   resetRoundState(context.canvas, stageToRetry)
   gameStore.setState({
     status: 'running'

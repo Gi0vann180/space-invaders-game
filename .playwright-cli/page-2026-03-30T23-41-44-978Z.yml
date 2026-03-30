@@ -1,0 +1,46 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - heading "Mapa da campanha" [level=2] [ref=e7]
+      - paragraph [ref=e8]: "Fase atual: 1"
+    - generic [ref=e9]:
+      - button "Fase 1 Desbloqueada" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]: Fase 1
+        - generic [ref=e13]: Desbloqueada
+      - button "Fase 2 Bloqueada Derrote o chefe da fase anterior para desbloquear" [disabled] [ref=e15]:
+        - generic [ref=e16]: Fase 2
+        - generic [ref=e17]: Bloqueada
+        - generic [ref=e18]: Derrote o chefe da fase anterior para desbloquear
+      - button "Fase 3 Bloqueada Derrote o chefe da fase anterior para desbloquear" [disabled] [ref=e20]:
+        - generic [ref=e21]: Fase 3
+        - generic [ref=e22]: Bloqueada
+        - generic [ref=e23]: Derrote o chefe da fase anterior para desbloquear
+      - button "Fase 4 Bloqueada Derrote o chefe da fase anterior para desbloquear" [disabled] [ref=e25]:
+        - generic [ref=e26]: Fase 4
+        - generic [ref=e27]: Bloqueada
+        - generic [ref=e28]: Derrote o chefe da fase anterior para desbloquear
+      - button "Fase 5 Bloqueada Derrote o chefe da fase anterior para desbloquear" [disabled] [ref=e30]:
+        - generic [ref=e31]: Fase 5
+        - generic [ref=e32]: Bloqueada
+        - generic [ref=e33]: Derrote o chefe da fase anterior para desbloquear
+  - generic [ref=e34]:
+    - generic [ref=e35]:
+      - heading "Space Invaders - Modern UI" [level=1] [ref=e36]
+      - button "Configuracoes" [ref=e37] [cursor=pointer]
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - paragraph [ref=e41]: "Score: 0"
+          - paragraph [ref=e42]: "Lives: 3"
+          - paragraph [ref=e43]: "Stage: 1"
+        - generic [ref=e44]:
+          - paragraph [ref=e45]: "Best: 0"
+          - paragraph [ref=e46]: boss na fase
+      - generic [ref=e47]:
+        - paragraph [ref=e48]: "Fase mais alta desbloqueada: 1"
+        - paragraph [ref=e49]: "Fases concluidas: 0"
+      - paragraph [ref=e50]: "Legenda: use / para mover e espa�o para atirar."
+    - generic [ref=e51]:
+      - generic:
+        - paragraph: Power-ups ativos
+        - paragraph: Nenhum

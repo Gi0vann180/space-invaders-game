@@ -4,6 +4,7 @@ import { GameOverlay } from './components/GameOverlay'
 import { HUD } from './components/HUD'
 import { SettingsPanel } from './components/SettingsPanel'
 import { ShopScreen } from './components/ShopScreen'
+import { playAudioCue, unlockAudio } from './services/audioService'
 import {
   continueToNextStage,
   pauseGame,
@@ -42,7 +43,13 @@ export default function App() {
     ;(window as Window & { __GAME_STORE__?: typeof gameStore }).__GAME_STORE__ = gameStore
   }
 
+  const primeAudioFromGesture = useCallback(() => {
+    unlockAudio(settingsStore.getState().audioEnabled)
+  }, [])
+
   const handlePrimaryOverlayAction = useCallback(() => {
+    primeAudioFromGesture()
+
     if (gameState.status === 'idle') {
       startRound()
       return
@@ -57,7 +64,7 @@ export default function App() {
       setUpgradeLevels({ ...EMPTY_UPGRADE_LEVELS })
       restartRound()
     }
-  }, [gameState.status])
+  }, [gameState.status, primeAudioFromGesture])
 
   useVisibilityPause({
     onPause: pauseGame,
@@ -134,6 +141,7 @@ export default function App() {
   }
 
   const handleResumeInterruptedRun = () => {
+    primeAudioFromGesture()
     setShowInterruptedRunPrompt(false)
 
     if (gameStore.getState().status === 'paused') {
@@ -145,6 +153,7 @@ export default function App() {
   }
 
   const handleRestartInterruptedRun = () => {
+    primeAudioFromGesture()
     setShowInterruptedRunPrompt(false)
     restartRound()
   }
@@ -163,6 +172,11 @@ export default function App() {
       }
     })
   }
+
+  const handleShopConfirmClick = useCallback(() => {
+    primeAudioFromGesture()
+    playAudioCue('shop-confirm', settingsStore.getState().audioEnabled)
+  }, [primeAudioFromGesture])
 
   return (
     <div
@@ -213,6 +227,7 @@ export default function App() {
               status={gameState.status}
               activePowerUps={gameState.activePowerUps}
               dropFeedback={gameState.dropFeedback}
+              bossEncounter={gameState.bossEncounter}
               bossHealth={gameState.bossEncounter.active ? gameState.bossEncounter.health : undefined}
               bossMaxHealth={gameState.bossEncounter.active ? gameState.bossEncounter.maxHealth : undefined}
               nowMs={Date.now()}
@@ -220,6 +235,7 @@ export default function App() {
               showInterruptedRunPrompt={showInterruptedRunPrompt}
               onPrimaryAction={handlePrimaryOverlayAction}
               onContinueStage={() => {
+                primeAudioFromGesture()
                 setShowCompletionOverlay(false)
                 continueToNextStage(gameStore.getState().upgradeLevels)
               }}
@@ -232,6 +248,7 @@ export default function App() {
                 lives={gameState.lives}
                 upgradeLevels={upgradeLevels}
                 runModifierOffer={gameState.runModifierOffer}
+                onConfirmClick={handleShopConfirmClick}
                 onSelectRunModifier={(modifierId) => {
                   const nextUpgradeLevels = applyRunModifierSelection(upgradeLevels, modifierId as RunModifierId)
                   setUpgradeLevels(nextUpgradeLevels)
@@ -261,6 +278,7 @@ export default function App() {
                   })
                 }}
                 onContinue={() => {
+                  primeAudioFromGesture()
                   setShowCompletionOverlay(false)
                   continueToNextStage(gameStore.getState().upgradeLevels)
                 }}

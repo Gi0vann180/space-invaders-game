@@ -1,9 +1,10 @@
-import type { ActivePowerUpState, DropFeedbackSnapshot, GameStatus } from '../game/types'
+import type { ActivePowerUpState, BossEncounterState, DropFeedbackSnapshot, GameStatus } from '../game/types'
 
 type GameOverlayProps = {
   status: GameStatus
   activePowerUps?: ActivePowerUpState[]
   dropFeedback?: DropFeedbackSnapshot | null
+  bossEncounter?: BossEncounterState | null
   bossHealth?: number
   bossMaxHealth?: number
   nowMs?: number
@@ -48,10 +49,27 @@ function getShotLabel(shotType: DropFeedbackSnapshot['shotType']): string {
   return 'Missil teleguiado'
 }
 
+function getBossOutcomeCopy(status: GameStatus, bossEncounter?: BossEncounterState | null): string | null {
+  if (!bossEncounter?.profile) {
+    return null
+  }
+
+  if (status === 'game-over' && bossEncounter.lifecycle === 'defeat') {
+    return `Derrota contra ${bossEncounter.profile.displayName} na tentativa ${Math.max(1, bossEncounter.attempt)}.`
+  }
+
+  if (status === 'shop' && bossEncounter.lifecycle === 'victory') {
+    return `Boss derrotado: ${bossEncounter.profile.displayName}.`
+  }
+
+  return null
+}
+
 export function GameOverlay({
   status,
   activePowerUps = [],
   dropFeedback = null,
+  bossEncounter = null,
   bossHealth,
   bossMaxHealth,
   nowMs = Date.now(),
@@ -65,6 +83,8 @@ export function GameOverlay({
   const copy = getOverlayCopy(status)
   const hasActivePowerUps = activePowerUps.length > 0
   const shouldShowDropFeedback = Boolean(dropFeedback && dropFeedback.visibleUntilMs > nowMs)
+  const bossOutcomeCopy = getBossOutcomeCopy(status, bossEncounter)
+  const bossDisplayName = bossEncounter?.profile?.displayName
 
   return (
     <>
@@ -94,6 +114,7 @@ export function GameOverlay({
 
       {typeof bossHealth === 'number' && typeof bossMaxHealth === 'number' && bossMaxHealth > 0 ? (
         <div className="pointer-events-none absolute bottom-3 right-3 z-20 rounded-md bg-slate-900/80 px-3 py-2 text-xs text-orange-200 backdrop-blur">
+          {bossDisplayName ? <p className="text-[11px] uppercase tracking-[0.18em] text-orange-300">{bossDisplayName}</p> : null}
           <p className="font-medium">Boss HP: {bossHealth}/{bossMaxHealth}</p>
         </div>
       ) : null}
@@ -127,6 +148,7 @@ export function GameOverlay({
         <div className="absolute inset-0 z-30 grid place-items-center bg-black/65">
           <div className="w-full max-w-lg rounded-xl border border-slate-700 bg-slate-900/95 p-6 text-center shadow-xl">
             <h2 className="mb-3 text-[28px] font-semibold leading-tight text-white">FASE COMPLETADA</h2>
+            {bossOutcomeCopy ? <p className="mb-2 text-sm font-medium text-emerald-300">{bossOutcomeCopy}</p> : null}
             <p className="mb-6 text-base font-normal text-slate-200">Recompensa aplicada. Voce desbloqueou a proxima fase da campanha.</p>
             <button
               className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500"
@@ -143,6 +165,7 @@ export function GameOverlay({
         <div className="absolute inset-0 z-30 grid place-items-center bg-black/65">
           <div className="rounded-xl border border-slate-700 bg-slate-900/95 p-6 text-center shadow-xl">
             <h2 className="mb-4 text-2xl font-semibold text-white">{copy.title}</h2>
+            {bossOutcomeCopy ? <p className="mb-4 text-sm font-medium text-rose-300">{bossOutcomeCopy}</p> : null}
             <button
               className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
               onClick={onPrimaryAction}

@@ -21,11 +21,13 @@ Entregar uma experiencia de combate espacial divertida, moderna e altamente rejo
 - ✓ Campanha base com mapa visual, desbloqueio persistente e transicoes claras validada na Phase 01: Campaign Meta-Layer
 - ✓ Pause/resume de run e retomada segura apos reabrir o app validados na Phase 01: Campaign Meta-Layer
 - ✓ Loop principal offline para campanha base validado na Phase 01: Campaign Meta-Layer
+- ✓ Chefes por fase com identidade mecanica distinta, telemetria dedicada e transicoes consistentes validados na Phase 02: Boss Encounters
+- ✓ Feedback audiovisual contextual para hit, derrota e vitoria de boss validado na Phase 02: Boss Encounters
 
 ### Active
 
 - [ ] Evoluir o jogo para uma experiencia mobile-first (UX de toque, legibilidade e fluxos de sessao curta)
-- [ ] Expandir campanha por fases com mecanicas novas, chefes mais marcantes e dificuldade progressiva sobre a fundacao entregue na Phase 01
+- [ ] Expandir campanha por fases com builds, sinergias e eventos dinamicos sobre a base de boss encounters entregue na Phase 02
 - [ ] Introduzir eventos dinamicos em partida para aumentar variacao e rejogabilidade
 - [ ] Criar sistema de builds/sinergias mais profundo durante runs
 - [ ] Modernizar direcao visual futurista (neon/cyber) com feedback de impacto
@@ -60,6 +62,7 @@ Entregar uma experiencia de combate espacial divertida, moderna e altamente rejo
 |----------|-----------|---------|
 | Priorizar publico casual mobile | Maior aderencia com objetivo de publicar em lojas e ampliar alcance | - Pending |
 | Estruturar v1 como campanha por fases | Direcao clara para progressao e conteudo incremental | ✓ Foundation validated in Phase 01 |
+| Perfis de boss data-driven por fase | Facilita identidade mecanica, tuning incremental e telemetria consistente | ✓ Validated in Phase 02 |
 | Adotar abordagem mobile-first desde agora | Evita retrabalho de UX/controles no fim do ciclo | - Pending |
 | Incluir Ads + IAP no v1 | Suporta viabilidade de produto sem depender de unico modelo | - Pending |
 | Definir sucesso por qualidade do core gameplay + retencao inicial | Evita publicacao prematura baseada apenas em feature count | - Pending |
@@ -67,8 +70,9 @@ Entregar uma experiencia de combate espacial divertida, moderna e altamente rejo
 ## Current State
 
 - Phase 01: Campaign Meta-Layer concluida com verificacao `passed` e UAT sem gaps em 2026-03-30.
-- Campanha base agora possui mapa visual, persistencia de desbloqueios e fluxo de retomada de runs interrompidas.
-- Proxima frente principal: executar Phase 02 para adicionar chefes com identidade mecanica e feedback audiovisual consistente.
+- Phase 02: Boss Encounters concluida com verificacao `passed` e gate Nyquist verde em 2026-03-30.
+- Campanha agora possui encounters de boss por fase com perfis distintos, feedback contextual e telemetria local protegida por consentimento.
+- Proxima frente principal: planejar a Phase 03 para aprofundar builds e sinergias sobre a base entregue nas fases 01 e 02.
 
 ## Evolution
 
@@ -88,4 +92,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-30 after Phase 01 completion*
+*Last updated: 2026-03-30 after Phase 02 completion*

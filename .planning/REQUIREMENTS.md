@@ -12,12 +12,12 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **CORE-01**: Jogador consegue controlar nave por toque com latência baixa e resposta consistente.
 - [x] **CORE-02**: Jogador consegue pausar e retomar partida sem perder estado da run.
 - [x] **CORE-03**: Jogo permanece jogável offline para o loop principal.
-- [ ] **CORE-04**: Jogo fornece feedback audiovisual claro em impactos, dano, derrotas e vitórias.
+- [x] **CORE-04**: Jogo fornece feedback audiovisual claro em impactos, dano, derrotas e vitórias.
 
 ### Campanha e Progressão
 
 - [x] **CAMP-01**: Jogador consegue progredir por fases com objetivos e transições claras.
-- [ ] **CAMP-02**: Cada fase possui chefe com mecânica distinta e telemetria de derrota/vitória.
+- [x] **CAMP-02**: Cada fase possui chefe com mecânica distinta e telemetria de derrota/vitória.
 - [ ] **CAMP-03**: Jogador consegue montar build de upgrades durante a run com sinergias identificáveis.
 - [ ] **CAMP-04**: Jogo dispara eventos dinâmicos durante runs para variar ritmo e desafio.
 - [x] **CAMP-05**: Jogador desbloqueia progressão permanente entre partidas.
@@ -58,9 +58,9 @@ Which phases cover which requirements. Updated during roadmap creation (2026-03-
 | CORE-01 | Phase 5 - Mobile Touch & UX Polish | Pending |
 | CORE-02 | Phase 1 - Campaign Meta-Layer | Complete (Phase 01 verified 2026-03-30) |
 | CORE-03 | Phase 1 - Campaign Meta-Layer | Complete (Phase 01 verified 2026-03-30) |
-| CORE-04 | Phase 2 - Boss Encounters | Pending |
+| CORE-04 | Phase 2 - Boss Encounters | Complete (Phase 02 verified 2026-03-30) |
 | CAMP-01 | Phase 1 - Campaign Meta-Layer | Complete (Phase 01 verified 2026-03-30) |
-| CAMP-02 | Phase 2 - Boss Encounters | Pending |
+| CAMP-02 | Phase 2 - Boss Encounters | Complete (Phase 02 verified 2026-03-30) |
 | CAMP-03 | Phase 3 - Build System & Synergies | Pending |
 | CAMP-04 | Phase 4 - Dynamic Events | Pending |
 | CAMP-05 | Phase 1 - Campaign Meta-Layer | Complete (Phase 01 verified 2026-03-30) |
@@ -77,4 +77,4 @@ Which phases cover which requirements. Updated during roadmap creation (2026-03-
 
 ---
 *Requirements defined: 2026-03-23*  
-*Last updated: 2026-03-30 after Phase 01 verification*
+*Last updated: 2026-03-30 after Phase 02 verification*

@@ -132,17 +132,20 @@ export function resolveBossProjectileCollisions(
   boss: BossEntity | null
   projectiles: ProjectileEntity[]
   bossDefeated: boolean
+  bossHit: boolean
 } {
   if (!boss) {
     return {
       boss,
       projectiles,
-      bossDefeated: false
+      bossDefeated: false,
+      bossHit: false
     }
   }
 
   let nextBoss = boss
   const remainingProjectiles: ProjectileEntity[] = []
+  let bossHit = false
 
   for (const projectile of projectiles) {
     if (projectile.origin !== 'player') {
@@ -165,6 +168,7 @@ export function resolveBossProjectileCollisions(
     }
 
     const nextHealth = Math.max(0, nextBoss.health - getProjectileDamageAgainstBoss(projectile))
+    bossHit = true
     nextBoss = {
       ...nextBoss,
       health: nextHealth
@@ -176,7 +180,8 @@ export function resolveBossProjectileCollisions(
   return {
     boss: bossDefeated ? null : nextBoss,
     projectiles: remainingProjectiles,
-    bossDefeated
+    bossDefeated,
+    bossHit
   }
 }
 

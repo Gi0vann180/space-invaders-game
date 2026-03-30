@@ -11,7 +11,7 @@
 ## Phases
 
 - [x] **Phase 1: Campaign Meta-Layer** - Estruturar campanha com progressÃ£o de fases e persistÃªncia entre partidas
-- [ ] **Phase 2: Boss Encounters** - Implementar chefes Ãºnicos com mecÃ¢nicas distintas e dificuldade progressiva
+- [x] **Phase 2: Boss Encounters** - Implementar chefes Ãºnicos com mecÃ¢nicas distintas e dificuldade progressiva
 - [ ] **Phase 3: Build System & Synergies** - Sistema de upgrades com sinergias identificÃ¡veis para aumentar rejogabilidade
 - [ ] **Phase 4: Dynamic Events** - Eventos aleatÃ³rios durante runs para variar ritmo e desafio
 - [ ] **Phase 5: Mobile Touch & UX Polish** - Otimizar controles de toque e interface para dispositivos mobile
@@ -67,11 +67,13 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md - Boss-every-stage contracts, profiles, and lifecycle state
-- [ ] 02-02-PLAN.md - Boss telemetry and audiovisual outcome feedback wiring
-- [ ] 02-03-PLAN.md - Difficulty fairness guardrails and end-to-end regression gate
+- [x] 02-01-PLAN.md - Boss-every-stage contracts, profiles, and lifecycle state
+- [x] 02-02-PLAN.md - Boss telemetry and audiovisual outcome feedback wiring
+- [x] 02-03-PLAN.md - Difficulty fairness guardrails and end-to-end regression gate
 
 **UI hint**: yes
+
+**Completed**: 2026-03-30
 
 ---
 
@@ -184,7 +186,7 @@ Plans:
 | Phase | Goal Summary | Plans | Status | Completed |
 |-------|--------------|-------|--------|-----------|
 | 1 | Campaign Meta-Layer | 2/2 | Complete | 2026-03-30 |
-| 2 | Boss Encounters | TBD | Not started | - |
+| 2 | Boss Encounters | 3/3 | Complete | 2026-03-30 |
 | 3 | Build System & Synergies | TBD | Not started | - |
 | 4 | Dynamic Events | TBD | Not started | - |
 | 5 | Mobile Touch & UX Polish | TBD | Not started | - |
@@ -195,7 +197,7 @@ Plans:
 
 **Roadmap validation**: 14/14 v1 requirements mapped to phases. No orphans. Every requirement has exactly one phase assignment. Coverage complete.
 
-**Next step**: `/gsd-execute-phase 2` to start Phase 2 (Boss Encounters).
+**Next step**: `/gsd-plan-phase 3` to prepare Phase 3 (Build System & Synergies).
 
 
 

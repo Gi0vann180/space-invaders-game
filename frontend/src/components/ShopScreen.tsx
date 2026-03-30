@@ -18,6 +18,7 @@ type ShopScreenProps = {
   lives: number
   upgradeLevels: UpgradeLevels
   runModifierOffer: RunModifierOfferSnapshot | null
+  onConfirmClick?: () => void
   onSelectRunModifier: (modifierId: string) => void
   onPurchaseExtraLife: (nextScore: number, nextLives: number) => void
   onPurchase: (nextScore: number, nextUpgradeLevels: UpgradeLevels) => void
@@ -29,6 +30,7 @@ export function ShopScreen({
   lives,
   upgradeLevels,
   runModifierOffer,
+  onConfirmClick,
   onSelectRunModifier,
   onPurchaseExtraLife,
   onPurchase,
@@ -61,6 +63,7 @@ export function ShopScreen({
                   disabled={!canBuy}
                   onClick={() => {
                     const result = purchasePermanentUpgrade(score, upgradeLevels, item)
+                    onConfirmClick?.()
                     onPurchase(result.score, result.upgradeLevels)
                   }}
                   type="button"
@@ -87,6 +90,7 @@ export function ShopScreen({
                   return
                 }
 
+                onConfirmClick?.()
                 onPurchaseExtraLife(result.score, result.lives)
               }}
               type="button"
@@ -111,7 +115,10 @@ export function ShopScreen({
                   <button
                     className="rounded-md bg-sky-600 px-3 py-1.5 text-xs font-medium disabled:cursor-not-allowed disabled:bg-slate-700"
                     disabled={!option.applicable || runModifierOffer.selectedModifierId !== null}
-                    onClick={() => onSelectRunModifier(option.modifierId)}
+                    onClick={() => {
+                      onConfirmClick?.()
+                      onSelectRunModifier(option.modifierId)
+                    }}
                     type="button"
                   >
                     {runModifierOffer.selectedModifierId === option.modifierId ? 'Selecionado' : 'Selecionar'}
@@ -122,7 +129,14 @@ export function ShopScreen({
           </div>
         ) : null}
         <div className="sticky bottom-0 mt-4 flex justify-end border-t border-slate-800 bg-slate-900/95 pt-3">
-          <button className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium" onClick={onContinue} type="button">
+          <button
+            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium"
+            onClick={() => {
+              onConfirmClick?.()
+              onContinue()
+            }}
+            type="button"
+          >
             Próxima fase
           </button>
         </div>
