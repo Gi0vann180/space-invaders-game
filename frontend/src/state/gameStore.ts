@@ -13,6 +13,7 @@ const initialState: GameSessionState = {
   upgradeLevels: { ...EMPTY_UPGRADE_LEVELS },
   activePowerUps: [],
   activeDrops: [],
+  dropFeedback: null,
   bossEncounter: {
     active: false,
     lifecycle: 'idle',

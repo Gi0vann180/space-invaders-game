@@ -212,6 +212,7 @@ export default function App() {
             <GameOverlay
               status={gameState.status}
               activePowerUps={gameState.activePowerUps}
+              dropFeedback={gameState.dropFeedback}
               bossHealth={gameState.bossEncounter.active ? gameState.bossEncounter.health : undefined}
               bossMaxHealth={gameState.bossEncounter.active ? gameState.bossEncounter.maxHealth : undefined}
               nowMs={Date.now()}

@@ -30,7 +30,13 @@ import {
 } from './systems/collisionSystem'
 import { emitBossProjectiles } from './systems/bossAttackSystem'
 import { spawnBossForWave, tickBoss } from './systems/bossSystem'
-import { removeExpiredDrops, resolveCollectedSpecialShot, stepDrops } from './systems/dropSystem'
+import {
+  createCollectedDropFeedback,
+  removeExpiredDrops,
+  resolveCollectedSpecialShot,
+  resolveVisibleDropFeedback,
+  stepDrops
+} from './systems/dropSystem'
 import { createShopRunModifierOffer, evaluateStageProgression } from './systems/progressionSystem'
 import { addOrRefreshPowerUp, getActiveWeaponPowerUp, removeExpiredPowerUps } from './systems/powerUpSystem'
 import { updateScoreAndLives } from './systems/scoreLivesSystem'
@@ -181,6 +187,7 @@ function syncStore(): void {
     score: state.score,
     lives: state.lives,
     stage: wave.stage,
+    dropFeedback: state.dropFeedback,
     bossEncounter: {
       ...state.bossEncounter,
       active: Boolean(wave.boss),
@@ -238,6 +245,7 @@ function update(deltaSeconds: number): void {
   }
 
   let activePowerUps = removeExpiredPowerUps(state.activePowerUps, nowMs)
+  let dropFeedback = resolveVisibleDropFeedback(state.dropFeedback, nowMs)
   activeDrops = removeExpiredDrops(activeDrops, nowMs)
   activeDrops = stepDrops(activeDrops, deltaSeconds, context.canvas.height)
 
@@ -305,6 +313,7 @@ function update(deltaSeconds: number): void {
       const currentWeapon = getActiveWeaponPowerUp(activePowerUps)
       const resolvedShot = resolveCollectedSpecialShot(shotType, currentWeapon)
       activePowerUps = addOrRefreshPowerUp(activePowerUps, resolvedShot, nowMs)
+      dropFeedback = createCollectedDropFeedback(resolvedShot, nowMs)
     }
   }
 
@@ -318,6 +327,12 @@ function update(deltaSeconds: number): void {
   if (progression.enterBossFight) {
     wave = spawnBossForWave(wave, getBossEncounterAttemptForStage(wave.stage))
     startBossEncounter(nowMs)
+    gameStore.setState({
+      activePowerUps,
+      activeDrops,
+      dropFeedback,
+      input
+    })
     return
   }
 
@@ -373,6 +388,7 @@ function update(deltaSeconds: number): void {
       runModifierOffer,
       activePowerUps,
       activeDrops,
+      dropFeedback,
       input
     })
     pauseGameLoop()
@@ -424,6 +440,7 @@ function update(deltaSeconds: number): void {
       },
       activePowerUps,
       activeDrops,
+      dropFeedback,
       input
     })
 
@@ -470,6 +487,7 @@ function update(deltaSeconds: number): void {
     },
     activePowerUps,
     activeDrops,
+    dropFeedback,
     input
   })
 }
@@ -553,6 +571,7 @@ export function startRound(): void {
 
   gameStore.setState({
     status: 'running',
+    dropFeedback: null,
     bossEncounter: createClearedBossEncounter(state.bossEncounter, {
       outcome: 'none',
       startedAtMs: null,
@@ -675,6 +694,7 @@ export function continueToNextStage(upgradeLevels: UpgradeLevels): void {
     upgradeLevels,
     runModifierOffer: null,
     activeDrops,
+    dropFeedback: null,
     bossEncounter: createClearedBossEncounter(gameStore.getState().bossEncounter, {
       outcome: 'none',
       startedAtMs: null,

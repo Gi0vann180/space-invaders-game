@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createDropFixture } from '../fixtures/drop-fixtures'
 import { createPlayer } from '../../src/game/entities/player'
 import { resolvePlayerDropCollisions } from '../../src/game/systems/collisionSystem'
-import { removeExpiredDrops } from '../../src/game/systems/dropSystem'
+import { createCollectedDropFeedback, removeExpiredDrops, resolveVisibleDropFeedback } from '../../src/game/systems/dropSystem'
 
 describe('US3 drop lifecycle', () => {
   it('coleta drop ao colidir com jogador e remove da lista', () => {
@@ -12,6 +12,13 @@ describe('US3 drop lifecycle', () => {
     const result = resolvePlayerDropCollisions(player, [drop])
     expect(result.drops).toHaveLength(0)
     expect(result.collectedShots).toHaveLength(1)
+  })
+
+  it('gera feedback temporario para tornar a recompensa visivel', () => {
+    const feedback = createCollectedDropFeedback('laser', 1000)
+
+    expect(resolveVisibleDropFeedback(feedback, 1500)).toEqual(feedback)
+    expect(resolveVisibleDropFeedback(feedback, feedback.visibleUntilMs)).toBeNull()
   })
 
   it('remove drop expirado por tempo', () => {

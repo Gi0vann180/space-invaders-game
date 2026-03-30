@@ -60,6 +60,11 @@ export type RareDropSnapshot = {
   expiresAtMs: number
 }
 
+export type DropFeedbackSnapshot = {
+  shotType: Extract<TemporaryPowerUpType, 'laser' | 'homing-missile'>
+  visibleUntilMs: number
+}
+
 export type ProgressProfileSnapshot = {
   highestUnlockedStage: number
   totalRuns: number
@@ -119,6 +124,7 @@ export interface GameSessionState {
   upgradeLevels: UpgradeLevels
   activePowerUps: ActivePowerUpState[]
   activeDrops: RareDropSnapshot[]
+  dropFeedback: DropFeedbackSnapshot | null
   bossEncounter: BossEncounterState
   progressionProfile: ProgressProfileSnapshot
   runModifierOffer: RunModifierOfferSnapshot | null

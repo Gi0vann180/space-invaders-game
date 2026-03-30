@@ -1,8 +1,9 @@
 import { RARE_DROP_CHANCE_PERCENT } from '../config/gameplay'
 import { createRareDrop, isDropExpired, type RareDropEntity } from '../entities/dropItem'
-import type { TemporaryPowerUpType } from '../types'
+import type { DropFeedbackSnapshot, TemporaryPowerUpType } from '../types'
 
 const SPECIAL_SHOTS: Array<Extract<TemporaryPowerUpType, 'laser' | 'homing-missile'>> = ['laser', 'homing-missile']
+const DROP_FEEDBACK_DURATION_MS = 1800
 
 export function shouldSpawnRareDrop(seed: number, chancePercent = RARE_DROP_CHANCE_PERCENT): boolean {
   const normalized = Math.abs(seed) % 100
@@ -23,6 +24,27 @@ export function resolveCollectedSpecialShot(
   }
 
   return pickedShot === 'laser' ? 'homing-missile' : 'laser'
+}
+
+export function createCollectedDropFeedback(
+  shotType: Extract<TemporaryPowerUpType, 'laser' | 'homing-missile'>,
+  nowMs: number
+): DropFeedbackSnapshot {
+  return {
+    shotType,
+    visibleUntilMs: nowMs + DROP_FEEDBACK_DURATION_MS
+  }
+}
+
+export function resolveVisibleDropFeedback(
+  feedback: DropFeedbackSnapshot | null,
+  nowMs: number
+): DropFeedbackSnapshot | null {
+  if (!feedback) {
+    return null
+  }
+
+  return feedback.visibleUntilMs > nowMs ? feedback : null
 }
 
 export function spawnRareDrop(input: {

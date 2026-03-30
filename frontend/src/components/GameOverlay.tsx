@@ -1,8 +1,9 @@
-import type { ActivePowerUpState, GameStatus } from '../game/types'
+import type { ActivePowerUpState, DropFeedbackSnapshot, GameStatus } from '../game/types'
 
 type GameOverlayProps = {
   status: GameStatus
   activePowerUps?: ActivePowerUpState[]
+  dropFeedback?: DropFeedbackSnapshot | null
   bossHealth?: number
   bossMaxHealth?: number
   nowMs?: number
@@ -39,9 +40,18 @@ function getOverlayCopy(status: GameStatus): { title: string; buttonLabel: strin
   return null
 }
 
+function getShotLabel(shotType: DropFeedbackSnapshot['shotType']): string {
+  if (shotType === 'laser') {
+    return 'Laser'
+  }
+
+  return 'Missil teleguiado'
+}
+
 export function GameOverlay({
   status,
   activePowerUps = [],
+  dropFeedback = null,
   bossHealth,
   bossMaxHealth,
   nowMs = Date.now(),
@@ -54,6 +64,7 @@ export function GameOverlay({
 }: GameOverlayProps) {
   const copy = getOverlayCopy(status)
   const hasActivePowerUps = activePowerUps.length > 0
+  const shouldShowDropFeedback = Boolean(dropFeedback && dropFeedback.visibleUntilMs > nowMs)
 
   return (
     <>
@@ -74,6 +85,12 @@ export function GameOverlay({
           <p className="text-slate-400">Nenhum</p>
         )}
       </div>
+
+      {shouldShowDropFeedback ? (
+        <div className="pointer-events-none absolute left-1/2 top-4 z-20 -translate-x-1/2 rounded-full border border-cyan-400/50 bg-slate-900/90 px-4 py-2 text-xs font-semibold text-cyan-200 shadow-[0_0_24px_rgba(34,211,238,0.25)] backdrop-blur">
+          Drop raro coletado: {getShotLabel(dropFeedback!.shotType)} equipado
+        </div>
+      ) : null}
 
       {typeof bossHealth === 'number' && typeof bossMaxHealth === 'number' && bossMaxHealth > 0 ? (
         <div className="pointer-events-none absolute bottom-3 right-3 z-20 rounded-md bg-slate-900/80 px-3 py-2 text-xs text-orange-200 backdrop-blur">
