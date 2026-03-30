@@ -10,17 +10,17 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Core Gameplay
 
 - [ ] **CORE-01**: Jogador consegue controlar nave por toque com latência baixa e resposta consistente.
-- [ ] **CORE-02**: Jogador consegue pausar e retomar partida sem perder estado da run.
-- [ ] **CORE-03**: Jogo permanece jogável offline para o loop principal.
+- [x] **CORE-02**: Jogador consegue pausar e retomar partida sem perder estado da run.
+- [x] **CORE-03**: Jogo permanece jogável offline para o loop principal.
 - [ ] **CORE-04**: Jogo fornece feedback audiovisual claro em impactos, dano, derrotas e vitórias.
 
 ### Campanha e Progressão
 
-- [ ] **CAMP-01**: Jogador consegue progredir por fases com objetivos e transições claras.
+- [x] **CAMP-01**: Jogador consegue progredir por fases com objetivos e transições claras.
 - [ ] **CAMP-02**: Cada fase possui chefe com mecânica distinta e telemetria de derrota/vitória.
 - [ ] **CAMP-03**: Jogador consegue montar build de upgrades durante a run com sinergias identificáveis.
 - [ ] **CAMP-04**: Jogo dispara eventos dinâmicos durante runs para variar ritmo e desafio.
-- [ ] **CAMP-05**: Jogador desbloqueia progressão permanente entre partidas.
+- [x] **CAMP-05**: Jogador desbloqueia progressão permanente entre partidas.
 
 ### Mobile Produto e Go-to-Market
 
@@ -56,14 +56,14 @@ Which phases cover which requirements. Updated during roadmap creation (2026-03-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CORE-01 | Phase 5 - Mobile Touch & UX Polish | Pending |
-| CORE-02 | Phase 1 - Campaign Meta-Layer | Pending |
-| CORE-03 | Phase 1 - Campaign Meta-Layer | Pending |
+| CORE-02 | Phase 1 - Campaign Meta-Layer | Complete (Phase 01 verified 2026-03-30) |
+| CORE-03 | Phase 1 - Campaign Meta-Layer | Complete (Phase 01 verified 2026-03-30) |
 | CORE-04 | Phase 2 - Boss Encounters | Pending |
-| CAMP-01 | Phase 1 - Campaign Meta-Layer | Pending |
+| CAMP-01 | Phase 1 - Campaign Meta-Layer | Complete (Phase 01 verified 2026-03-30) |
 | CAMP-02 | Phase 2 - Boss Encounters | Pending |
 | CAMP-03 | Phase 3 - Build System & Synergies | Pending |
 | CAMP-04 | Phase 4 - Dynamic Events | Pending |
-| CAMP-05 | Phase 1 - Campaign Meta-Layer | Pending |
+| CAMP-05 | Phase 1 - Campaign Meta-Layer | Complete (Phase 01 verified 2026-03-30) |
 | MOB-01 | Phase 7 - App Store Distribution | Pending |
 | MOB-02 | Phase 7 - App Store Distribution | Pending |
 | MOB-03 | Phase 6 - Monetization & Soft Launch | Pending |
@@ -77,4 +77,4 @@ Which phases cover which requirements. Updated during roadmap creation (2026-03-
 
 ---
 *Requirements defined: 2026-03-23*  
-*Last updated: 2026-03-23 after roadmap creation*
+*Last updated: 2026-03-30 after Phase 01 verification*

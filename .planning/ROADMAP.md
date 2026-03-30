@@ -10,7 +10,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Campaign Meta-Layer** - Estruturar campanha com progressÃ£o de fases e persistÃªncia entre partidas
+- [x] **Phase 1: Campaign Meta-Layer** - Estruturar campanha com progressÃ£o de fases e persistÃªncia entre partidas
 - [ ] **Phase 2: Boss Encounters** - Implementar chefes Ãºnicos com mecÃ¢nicas distintas e dificuldade progressiva
 - [ ] **Phase 3: Build System & Synergies** - Sistema de upgrades com sinergias identificÃ¡veis para aumentar rejogabilidade
 - [ ] **Phase 4: Dynamic Events** - Eventos aleatÃ³rios durante runs para variar ritmo e desafio
@@ -40,10 +40,12 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md - Persistence foundation and resume-safe progression contracts
-- [ ] 01-02-PLAN.md - Campaign map UI and completion/interrupted-run flows
+- [x] 01-01-PLAN.md - Persistence foundation and resume-safe progression contracts
+- [x] 01-02-PLAN.md - Campaign map UI and completion/interrupted-run flows
 
 **UI hint**: yes
+
+**Completed**: 2026-03-30
 
 ---
 
@@ -181,7 +183,7 @@ Plans:
 
 | Phase | Goal Summary | Plans | Status | Completed |
 |-------|--------------|-------|--------|-----------|
-| 1 | Campaign Meta-Layer | 2 | Not started | - |
+| 1 | Campaign Meta-Layer | 2/2 | Complete | 2026-03-30 |
 | 2 | Boss Encounters | TBD | Not started | - |
 | 3 | Build System & Synergies | TBD | Not started | - |
 | 4 | Dynamic Events | TBD | Not started | - |
@@ -193,7 +195,7 @@ Plans:
 
 **Roadmap validation**: 14/14 v1 requirements mapped to phases. No orphans. Every requirement has exactly one phase assignment. Coverage complete.
 
-**Next step**: `/gsd:plan-phase 1` to create detailed plan for Phase 1 (Campaign Meta-Layer).
+**Next step**: `/gsd-execute-phase 2` to start Phase 2 (Boss Encounters).
 
 
 
