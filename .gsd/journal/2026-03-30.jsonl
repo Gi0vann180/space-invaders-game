@@ -1,0 +1,12 @@
+{"ts":"2026-03-30T18:42:03.926Z","flowId":"52c28ae4-cb92-4ba5-9b8f-d970eccc63ed","seq":1,"eventType":"iteration-start","data":{"iteration":1}}
+{"ts":"2026-03-30T18:42:04.014Z","flowId":"52c28ae4-cb92-4ba5-9b8f-d970eccc63ed","seq":2,"eventType":"dispatch-match","rule":"summarizing → complete-slice","data":{"unitType":"complete-slice","unitId":"M001/S01"}}
+{"ts":"2026-03-30T18:42:04.051Z","flowId":"52c28ae4-cb92-4ba5-9b8f-d970eccc63ed","seq":3,"eventType":"unit-start","data":{"unitType":"complete-slice","unitId":"M001/S01"}}
+{"ts":"2026-03-30T18:46:00.967Z","flowId":"52c28ae4-cb92-4ba5-9b8f-d970eccc63ed","seq":4,"eventType":"unit-end","data":{"unitType":"complete-slice","unitId":"M001/S01","status":"completed","artifactVerified":true},"causedBy":{"flowId":"52c28ae4-cb92-4ba5-9b8f-d970eccc63ed","seq":3}}
+{"ts":"2026-03-30T18:46:01.104Z","flowId":"52c28ae4-cb92-4ba5-9b8f-d970eccc63ed","seq":5,"eventType":"iteration-end","data":{"iteration":1}}
+{"ts":"2026-03-30T18:46:01.104Z","flowId":"aaca9ad6-bf34-4935-97ac-79bdcd070d8a","seq":1,"eventType":"iteration-start","data":{"iteration":2}}
+{"ts":"2026-03-30T18:46:01.171Z","flowId":"aaca9ad6-bf34-4935-97ac-79bdcd070d8a","seq":2,"eventType":"dispatch-match","rule":"executing → execute-task","data":{"unitType":"execute-task","unitId":"M001/S02/T01"}}
+{"ts":"2026-03-30T18:46:01.210Z","flowId":"aaca9ad6-bf34-4935-97ac-79bdcd070d8a","seq":3,"eventType":"unit-start","data":{"unitType":"execute-task","unitId":"M001/S02/T01"}}
+{"ts":"2026-03-30T18:52:09.983Z","flowId":"ee17b8f8-1d16-490d-b673-212473f57493","seq":1,"eventType":"iteration-start","data":{"iteration":1}}
+{"ts":"2026-03-30T18:52:10.049Z","flowId":"ee17b8f8-1d16-490d-b673-212473f57493","seq":2,"eventType":"dispatch-match","rule":"executing → execute-task","data":{"unitType":"execute-task","unitId":"M001/S02/T01"}}
+{"ts":"2026-03-30T18:52:10.082Z","flowId":"ee17b8f8-1d16-490d-b673-212473f57493","seq":3,"eventType":"unit-start","data":{"unitType":"execute-task","unitId":"M001/S02/T01"}}
+{"ts":"2026-03-30T18:55:48.154Z","flowId":"ee17b8f8-1d16-490d-b673-212473f57493","seq":4,"eventType":"unit-end","data":{"unitType":"execute-task","unitId":"M001/S02/T01","status":"completed","artifactVerified":true},"causedBy":{"flowId":"ee17b8f8-1d16-490d-b673-212473f57493","seq":3}}

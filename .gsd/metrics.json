@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "projectStartedAt": 1774896123915,
+  "units": [
+    {
+      "type": "complete-slice",
+      "id": "M001/S01",
+      "model": "gpt-5.4",
+      "startedAt": 1774896124051,
+      "finishedAt": 1774896360786,
+      "tokens": {
+        "input": 49755,
+        "output": 7822,
+        "cacheRead": 1056640,
+        "cacheWrite": 0,
+        "total": 1114217
+      },
+      "cost": 0.5058774999999999,
+      "toolCalls": 42,
+      "assistantMessages": 17,
+      "userMessages": 0,
+      "apiRequests": 17,
+      "promptCharCount": 19046,
+      "baselineCharCount": 8389,
+      "cacheHitRate": 96
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S02/T01",
+      "model": "gpt-5.4",
+      "startedAt": 1774896361210,
+      "finishedAt": 1774896687813,
+      "tokens": {
+        "input": 98509,
+        "output": 9359,
+        "cacheRead": 3037312,
+        "cacheWrite": 0,
+        "total": 3145180
+      },
+      "cost": 1.1459855,
+      "toolCalls": 65,
+      "assistantMessages": 37,
+      "userMessages": 0,
+      "apiRequests": 37,
+      "cacheHitRate": 97
+    },
+    {
+      "type": "execute-task",
+      "id": "M001/S02/T01",
+      "model": "gpt-5.4",
+      "startedAt": 1774896730082,
+      "finishedAt": 1774896947989,
+      "tokens": {
+        "input": 238288,
+        "output": 5619,
+        "cacheRead": 1430912,
+        "cacheWrite": 0,
+        "total": 1674819
+      },
+      "cost": 1.037733,
+      "toolCalls": 46,
+      "assistantMessages": 24,
+      "userMessages": 0,
+      "apiRequests": 24,
+      "promptCharCount": 10093,
+      "baselineCharCount": 10000,
+      "cacheHitRate": 86
+    }
+  ]
+}
