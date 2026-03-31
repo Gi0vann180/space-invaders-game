@@ -185,16 +185,18 @@ export default function App() {
       }`}
     >
       <div className="w-full max-w-5xl p-4">
-        <CampaignMap
-          highestUnlockedStage={gameState.progressionProfile.highestUnlockedStage}
-          currentStage={gameState.stage}
-          completedStages={completedStages}
-          onSelectStage={handleSelectStage}
-        />
+        {(gameState.status === 'idle' || gameState.status === 'game-over') ? (
+          <CampaignMap
+            highestUnlockedStage={gameState.progressionProfile.highestUnlockedStage}
+            currentStage={gameState.stage}
+            completedStages={completedStages}
+            onSelectStage={handleSelectStage}
+          />
+        ) : null}
 
         <div className="bg-slate-900/60 rounded-2xl border border-slate-700/70 p-4 shadow-[0_25px_80px_rgba(15,23,42,0.55)]">
           <div className="mb-3 flex items-center justify-between">
-            <h1 className="text-2xl font-semibold">Space Invaders - Modern UI</h1>
+            <h1 className="text-xl font-bold uppercase tracking-widest text-slate-100">Space Invaders</h1>
             <button
               className="rounded-md bg-slate-700 px-3 py-1.5 text-sm font-medium hover:bg-slate-600"
               onClick={() => setIsSettingsOpen(true)}
@@ -211,8 +213,6 @@ export default function App() {
             bossHealth={gameState.bossEncounter.active ? gameState.bossEncounter.health : undefined}
             bossMaxHealth={gameState.bossEncounter.active ? gameState.bossEncounter.maxHealth : undefined}
             captionsEnabled={settings.captionsEnabled}
-            highestUnlockedStage={gameState.progressionProfile.highestUnlockedStage}
-            completedCount={completedStages.length}
             statusLabel={
               gameState.status === 'running'
                 ? isBossStage(gameState.stage)
