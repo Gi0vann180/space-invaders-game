@@ -23,18 +23,23 @@ function getStageState(stage: number, highestUnlockedStage: number, completedSta
 
 export function CampaignMap({ highestUnlockedStage, currentStage, completedStages, onSelectStage }: CampaignMapProps) {
   return (
-    <section className="mb-6 rounded-xl border border-cyan-500/20 bg-slate-950/80 p-5 shadow-[0_0_30px_rgba(6,182,212,0.06)]">
-      <div className="mb-1 flex items-center justify-between">
+    <section className="ui-shell mb-5 rounded-[28px] p-4 sm:p-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold uppercase tracking-widest text-cyan-400">Campanha</h2>
-          <p className="mt-0.5 text-xs text-slate-400">Escolha a fase de início da próxima rodada</p>
+          <p className="ui-chip mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-cyan-100/90">
+            Campaign Map
+          </p>
+          <h2 className="ui-display text-base font-bold uppercase tracking-[0.24em] text-slate-50 sm:text-lg">Campanha</h2>
+          <p className="mt-1 max-w-xl text-xs leading-relaxed text-slate-300 sm:text-sm">
+            Escolha onde começar a próxima run e acompanhe o ritmo da progressão.
+          </p>
         </div>
-        <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-300">
+        <span className="ui-chip px-3 py-1 text-xs font-semibold text-cyan-100">
           {completedStages.length} / {STAGES.length} concluídas
         </span>
       </div>
 
-      <div className="mt-4 grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {STAGES.map((stage, index) => {
           const stageState = getStageState(stage, highestUnlockedStage, completedStages)
           const isLocked = stageState === 'locked'
@@ -55,16 +60,16 @@ export function CampaignMap({ highestUnlockedStage, currentStage, completedStage
 
               <button
                 className={[
-                  'group flex h-24 w-full flex-col items-center justify-center gap-1 rounded-lg border px-2 py-3 text-center transition-all duration-200',
+                  'group flex min-h-[110px] w-full flex-col items-center justify-center gap-2 rounded-[22px] border px-3 py-4 text-center transition-all duration-200',
                   isCompleted
-                    ? 'border-cyan-500/50 bg-cyan-500/10 text-cyan-100 shadow-[0_0_12px_rgba(6,182,212,0.15)] hover:shadow-[0_0_20px_rgba(6,182,212,0.25)]'
+                    ? 'border-cyan-400/40 bg-cyan-400/10 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.16)] hover:shadow-[0_0_24px_rgba(34,211,238,0.24)]'
                     : '',
                   isUnlocked && !isCurrent
-                    ? 'border-indigo-500/40 bg-indigo-500/8 text-indigo-200 hover:border-indigo-400 hover:bg-indigo-500/15 hover:shadow-[0_0_14px_rgba(99,102,241,0.2)]'
+                    ? 'border-indigo-400/30 bg-indigo-400/10 text-indigo-100 hover:border-indigo-300/60 hover:bg-indigo-400/15 hover:shadow-[0_0_18px_rgba(129,140,248,0.18)]'
                     : '',
-                  isLocked ? 'cursor-not-allowed border-slate-700/50 bg-slate-900/60 text-slate-600' : '',
+                  isLocked ? 'cursor-not-allowed border-white/5 bg-white/[0.02] text-slate-500' : '',
                   isCurrent
-                    ? 'border-indigo-400 bg-indigo-500/20 text-indigo-100 shadow-[0_0_18px_rgba(99,102,241,0.3)] ring-1 ring-indigo-500/60'
+                    ? 'border-fuchsia-300/50 bg-gradient-to-b from-fuchsia-400/20 to-indigo-400/15 text-white shadow-[0_0_22px_rgba(167,139,250,0.24)] ring-1 ring-fuchsia-300/45'
                     : ''
                 ].join(' ')}
                 type="button"
@@ -72,18 +77,20 @@ export function CampaignMap({ highestUnlockedStage, currentStage, completedStage
                 onClick={() => onSelectStage(stage)}
                 title={isLocked ? 'Derrote o chefe da fase anterior para desbloquear' : `Iniciar da fase ${stage}`}
               >
-                <span className="text-lg leading-none">
+                <span className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-lg leading-none shadow-inner">
                   {isLocked ? '🔒' : isCompleted ? '✓' : STAGE_ICONS[index]}
                 </span>
-                <span className="text-xs font-bold uppercase tracking-wider">Fase {stage}</span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-inherit">Fase {stage}</span>
                 {isCurrent && !isLocked ? (
-                  <span className="text-[10px] font-semibold text-indigo-300">SELECIONADA</span>
+                  <span className="ui-chip px-2.5 py-1 text-[10px] font-semibold text-fuchsia-100">Selecionada</span>
                 ) : isCompleted ? (
-                  <span className="text-[10px] font-semibold text-cyan-400">CONCLUÍDA</span>
+                  <span className="ui-chip px-2.5 py-1 text-[10px] font-semibold text-cyan-100">Concluída</span>
                 ) : isUnlocked ? (
-                  <span className="text-[10px] text-indigo-400 opacity-0 transition-opacity group-hover:opacity-100">JOGAR →</span>
+                  <span className="text-[10px] font-medium uppercase tracking-[0.24em] text-indigo-200 opacity-0 transition-opacity group-hover:opacity-100">
+                    Jogar →
+                  </span>
                 ) : (
-                  <span className="text-[10px] text-slate-600">BLOQUEADA</span>
+                  <span className="text-[10px] font-medium uppercase tracking-[0.24em] text-slate-500">Bloqueada</span>
                 )}
               </button>
             </div>

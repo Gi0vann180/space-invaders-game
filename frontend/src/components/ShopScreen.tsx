@@ -11,15 +11,12 @@ import {
   purchasePermanentUpgrade,
   type UpgradeLevels
 } from '../services/shopService'
-import type { RunModifierOfferSnapshot } from '../game/types'
 
 type ShopScreenProps = {
   score: number
   lives: number
   upgradeLevels: UpgradeLevels
-  runModifierOffer: RunModifierOfferSnapshot | null
   onConfirmClick?: () => void
-  onSelectRunModifier: (modifierId: string) => void
   onPurchaseExtraLife: (nextScore: number, nextLives: number) => void
   onPurchase: (nextScore: number, nextUpgradeLevels: UpgradeLevels) => void
   onContinue: () => void
@@ -29,9 +26,7 @@ export function ShopScreen({
   score,
   lives,
   upgradeLevels,
-  runModifierOffer,
   onConfirmClick,
-  onSelectRunModifier,
   onPurchaseExtraLife,
   onPurchase,
   onContinue
@@ -39,10 +34,21 @@ export function ShopScreen({
   const canBuyExtraLife = canPurchaseExtraLife(score, lives)
 
   return (
-    <div className="absolute inset-0 z-40 overflow-y-auto bg-slate-950/95 p-4">
-      <div className="mx-auto w-full max-w-xl rounded-xl border border-slate-700 bg-slate-900 p-5 text-slate-100 max-h-[88vh] overflow-y-auto">
-        <h2 className="mb-2 text-2xl font-semibold">Loja da fase</h2>
-        <p className="mb-4 text-sm text-slate-300">Pontos disponíveis: {score}</p>
+    <div className="fixed inset-0 z-40 overflow-y-auto bg-slate-950/72 px-3 py-4 backdrop-blur-sm sm:px-4">
+      <div className="ui-shell-strong mx-auto max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[28px] p-4 text-slate-100 sm:p-5">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="ui-chip mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-cyan-100/90">
+              Phase Shop
+            </p>
+            <h2 className="ui-display text-[1.5rem] font-bold uppercase tracking-[0.22em] text-white">Loja da fase</h2>
+            <p className="mt-1 text-sm leading-relaxed text-slate-300">Pontos disponíveis: {score}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="ui-chip px-3 py-1.5 text-xs font-semibold text-amber-100">Vidas {lives}/{MAX_LIVES_PER_STAGE}</span>
+          </div>
+        </div>
+
         <ul className="space-y-3">
           {SHOP_CATALOG.filter((item) => item.id !== 'upgrade-shield').map((item) => {
             const currentLevel = getUpgradeLevel(upgradeLevels, item.id)
@@ -51,15 +57,16 @@ export function ShopScreen({
             const purchaseCost = getUpgradePurchaseCost(item, currentLevel)
 
             return (
-              <li className="flex items-center justify-between rounded-lg border border-slate-700 p-3" key={item.id}>
-                <div>
-                  <p className="font-medium">
-                    {item.name} <span className="text-xs text-slate-300">Nível {currentLevel}/{MAX_UPGRADE_LEVEL}</span>
+              <li className="ui-field flex flex-col gap-3 rounded-[22px] p-4 sm:flex-row sm:items-center sm:justify-between" key={item.id}>
+                <div className="space-y-1">
+                  <p className="flex flex-wrap items-center gap-2 font-medium text-white">
+                    <span>{item.name}</span>
+                    <span className="ui-chip px-2.5 py-1 text-[10px] font-semibold text-cyan-100">Nível {currentLevel}/{MAX_UPGRADE_LEVEL}</span>
                   </p>
-                  <p className="text-xs text-slate-400">{item.description}</p>
+                  <p className="max-w-xl text-xs leading-relaxed text-slate-300">{item.description}</p>
                 </div>
                 <button
-                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium disabled:cursor-not-allowed disabled:bg-slate-700"
+                  className="ui-button-primary rounded-full px-4 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:border-white/5 disabled:bg-white/10 disabled:text-slate-400 disabled:shadow-none"
                   disabled={!canBuy}
                   onClick={() => {
                     const result = purchasePermanentUpgrade(score, upgradeLevels, item)
@@ -74,15 +81,16 @@ export function ShopScreen({
             )
           })}
 
-          <li className="flex items-center justify-between rounded-lg border border-slate-700 p-3">
-            <div>
-              <p className="font-medium">
-                Vida Extra <span className="text-xs text-slate-300">Vidas: {lives}/{MAX_LIVES_PER_STAGE}</span>
+          <li className="ui-field flex flex-col gap-3 rounded-[22px] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="flex flex-wrap items-center gap-2 font-medium text-white">
+                <span>Vida Extra</span>
+                <span className="ui-chip px-2.5 py-1 text-[10px] font-semibold text-emerald-100">{lives}/{MAX_LIVES_PER_STAGE}</span>
               </p>
-              <p className="text-xs text-slate-400">Compra válida apenas nesta fase (limite 3 vidas).</p>
+              <p className="max-w-xl text-xs leading-relaxed text-slate-300">Compra válida apenas nesta fase (limite 3 vidas).</p>
             </div>
             <button
-              className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium disabled:cursor-not-allowed disabled:bg-slate-700"
+              className="rounded-full border border-emerald-400/30 bg-emerald-500/15 px-4 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:border-white/5 disabled:bg-white/10 disabled:text-slate-400"
               disabled={!canBuyExtraLife}
               onClick={() => {
                 const result = purchaseExtraLife(score, lives)
@@ -99,46 +107,20 @@ export function ShopScreen({
             </button>
           </li>
         </ul>
-        {runModifierOffer ? (
-          <div className="mt-4 rounded-lg border border-slate-700 p-3">
-            <p className="mb-2 text-sm font-medium text-slate-200">Oferta da run (fase {runModifierOffer.stageNumber})</p>
-            <ul className="space-y-2">
-              {runModifierOffer.options.map((option) => (
-                <li className="flex items-center justify-between rounded border border-slate-700 p-2" key={option.modifierId}>
-                  <div>
-                    <p className="text-sm font-medium">
-                      {option.label}{' '}
-                      <span className="text-xs text-slate-400">({option.category})</span>
-                    </p>
-                    {!option.applicable ? <p className="text-xs text-amber-300">Indisponível para build atual</p> : null}
-                  </div>
-                  <button
-                    className="rounded-md bg-sky-600 px-3 py-1.5 text-xs font-medium disabled:cursor-not-allowed disabled:bg-slate-700"
-                    disabled={!option.applicable || runModifierOffer.selectedModifierId !== null}
-                    onClick={() => {
-                      onConfirmClick?.()
-                      onSelectRunModifier(option.modifierId)
-                    }}
-                    type="button"
-                  >
-                    {runModifierOffer.selectedModifierId === option.modifierId ? 'Selecionado' : 'Selecionar'}
-                  </button>
-                </li>
-              ))}
-            </ul>
+
+        <div className="sticky bottom-0 mt-4 border-t border-white/10 bg-slate-950/88 pt-3 backdrop-blur">
+          <div className="flex justify-end">
+            <button
+              className="ui-button-primary rounded-full px-5 py-2 text-sm font-semibold"
+              onClick={() => {
+                onConfirmClick?.()
+                onContinue()
+              }}
+              type="button"
+            >
+              Próxima fase
+            </button>
           </div>
-        ) : null}
-        <div className="sticky bottom-0 mt-4 flex justify-end border-t border-slate-800 bg-slate-900/95 pt-3">
-          <button
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium"
-            onClick={() => {
-              onConfirmClick?.()
-              onContinue()
-            }}
-            type="button"
-          >
-            Próxima fase
-          </button>
         </div>
       </div>
     </div>

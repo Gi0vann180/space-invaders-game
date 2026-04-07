@@ -35,7 +35,6 @@ const initialState: GameSessionState = {
     lastCompletedStage: null,
     interruptedRun: null
   },
-  runModifierOffer: null,
   input: EMPTY_INPUT
 }
 

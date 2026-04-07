@@ -77,21 +77,6 @@ export type ProgressProfileSnapshot = {
   } | null
 }
 
-export type RunModifierOptionSnapshot = {
-  modifierId: string
-  label: string
-  category: 'offense' | 'defense' | 'utility'
-  applicable: boolean
-}
-
-export type RunModifierOfferSnapshot = {
-  runId: string
-  stageNumber: number
-  options: RunModifierOptionSnapshot[]
-  guaranteedApplicableOption: true
-  selectedModifierId: string | null
-}
-
 export interface Player {
   id: string
   position: Vector2
@@ -127,7 +112,6 @@ export interface GameSessionState {
   dropFeedback: DropFeedbackSnapshot | null
   bossEncounter: BossEncounterState
   progressionProfile: ProgressProfileSnapshot
-  runModifierOffer: RunModifierOfferSnapshot | null
   input: InputSnapshot
 }
 

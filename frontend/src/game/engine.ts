@@ -47,7 +47,7 @@ import {
   resolveVisibleDropFeedback,
   stepDrops
 } from './systems/dropSystem'
-import { createShopRunModifierOffer, evaluateStageProgression } from './systems/progressionSystem'
+import { evaluateStageProgression } from './systems/progressionSystem'
 import { addOrRefreshPowerUp, getActiveWeaponPowerUp, removeExpiredPowerUps } from './systems/powerUpSystem'
 import { updateScoreAndLives } from './systems/scoreLivesSystem'
 import { applyPlayerUpgrades } from './systems/upgradeSystem'
@@ -73,8 +73,6 @@ let wave: WaveState = {
 let projectiles: ProjectileEntity[] = []
 let activeDrops: RareDropEntity[] = []
 let pendingStage: number | null = null
-let currentRunId = 'run-0'
-let currentRunSeed = 'seed-0'
 let bossEncounterStartLives: number | null = null
 
 const bossFeedbackVibrationDurations: Record<BossFeedbackPreset, Record<'hit' | 'victory' | 'defeat', number>> = {
@@ -285,8 +283,6 @@ function resetRoundState(canvas: HTMLCanvasElement, stage = 1): void {
   projectiles = []
   activeDrops = []
   pendingStage = null
-  currentRunId = 'run-0'
-  currentRunSeed = 'seed-0'
   bossEncounterStartLives = null
 }
 
@@ -438,13 +434,6 @@ function update(deltaSeconds: number): void {
       })
     })
 
-    const runModifierOffer = createShopRunModifierOffer({
-      runId: currentRunId,
-      stageNumber: wave.stage,
-      runSeed: currentRunSeed,
-      upgradeLevels: state.upgradeLevels
-    })
-
     gameStore.setState({
       status: 'shop',
       score: nextScore,
@@ -466,7 +455,6 @@ function update(deltaSeconds: number): void {
         attempt: gameStore.getState().bossEncounter.attempt,
         damageTaken: gameStore.getState().bossEncounter.damageTaken
       }),
-      runModifierOffer,
       activePowerUps,
       activeDrops,
       dropFeedback,
@@ -643,10 +631,6 @@ export function startRound(): void {
 
   const state = gameStore.getState()
   resetRoundState(context.canvas, state.stage)
-
-  const nextRunOrdinal = Math.max(1, state.progressionProfile.totalRuns + 1)
-  currentRunId = `run-${nextRunOrdinal}`
-  currentRunSeed = `${nextRunOrdinal}-${Date.now()}-${state.highScore}`
   // New runs restart encounter attempts from a clean telemetry dedupe window.
   resetBossTelemetryDedupe()
 
@@ -789,7 +773,6 @@ export function continueToNextStage(upgradeLevels: UpgradeLevels): void {
     status: 'running',
     stage: wave.stage,
     upgradeLevels,
-    runModifierOffer: null,
     activeDrops,
     dropFeedback: null,
     bossEncounter: createClearedBossEncounter(gameStore.getState().bossEncounter, {

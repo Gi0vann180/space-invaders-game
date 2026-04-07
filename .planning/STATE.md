@@ -129,6 +129,8 @@ None identified. Phase 02 is closed and the roadmap is ready for Phase 03 planni
 | 260330-n5i | Improve space background, bosses, blocks design and fix boss respawn bug | 2026-03-30 | a277b3e | [260330-n5i-improve-space-background-bosses-blocks-d](./quick/260330-n5i-improve-space-background-bosses-blocks-d/) |
 | 260330-ng5 | Rebalance boss damage (2x) and move HUD above canvas | 2026-03-30 | c7c622f | [260330-ng5-rebalance-boss-damage-for-challenge-and-](./quick/260330-ng5-rebalance-boss-damage-for-challenge-and-/) |
 | 260330-od8 | Rebalance early bosses and make rare drop rewards visible | 2026-03-30 | 82f2f14 | [260330-od8-2-melhorias-1-o-game-est-desbalanceado-o](./quick/260330-od8-2-melhorias-1-o-game-est-desbalanceado-o/) |
+| 260406-p6m | Refresh minimalist futuristic interface and fix mobile modal fit | 2026-04-06 | working tree | [260406-p6m-arrumar-a-interface-do-jogo-deix-la-mais](./quick/260406-p6m-arrumar-a-interface-do-jogo-deix-la-mais/) |
+| 260407-remove-run-offer | Remove run modifier offer from shop screen | 2026-04-07 | working tree | [260407-remove-run-offer-from-shop](./quick/260407-remove-run-offer-from-shop/) |
 
 ### Assumptions Made
 

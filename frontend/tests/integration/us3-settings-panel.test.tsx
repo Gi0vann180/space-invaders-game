@@ -36,7 +36,6 @@ describe('US3 settings panel', () => {
     const onConfirmClick = vi.fn()
     const onPurchase = vi.fn()
     const onPurchaseExtraLife = vi.fn()
-    const onSelectRunModifier = vi.fn()
     const onContinue = vi.fn()
 
     render(
@@ -44,37 +43,20 @@ describe('US3 settings panel', () => {
         score={200}
         lives={2}
         upgradeLevels={{ ...EMPTY_UPGRADE_LEVELS }}
-        runModifierOffer={{
-          runId: 'run-1',
-          stageNumber: 2,
-          guaranteedApplicableOption: true,
-          selectedModifierId: null,
-          options: [
-            {
-              modifierId: 'run-mod-1',
-              label: 'Crit chance',
-              category: 'offense',
-              applicable: true
-            }
-          ]
-        }}
         onConfirmClick={onConfirmClick}
         onPurchase={onPurchase}
         onPurchaseExtraLife={onPurchaseExtraLife}
-        onSelectRunModifier={onSelectRunModifier}
         onContinue={onContinue}
       />
     )
 
     fireEvent.click(screen.getAllByRole('button', { name: /Evoluir/i })[0])
     fireEvent.click(screen.getByRole('button', { name: /Comprar vida/i }))
-    fireEvent.click(screen.getByRole('button', { name: 'Selecionar' }))
     fireEvent.click(screen.getByRole('button', { name: 'Próxima fase' }))
 
-    expect(onConfirmClick).toHaveBeenCalledTimes(4)
+    expect(onConfirmClick).toHaveBeenCalledTimes(3)
     expect(onPurchase).toHaveBeenCalledTimes(1)
     expect(onPurchaseExtraLife).toHaveBeenCalledTimes(1)
-    expect(onSelectRunModifier).toHaveBeenCalledWith('run-mod-1')
     expect(onContinue).toHaveBeenCalledTimes(1)
   })
 })

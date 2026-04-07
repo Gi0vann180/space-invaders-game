@@ -1,7 +1,5 @@
 import { getStageConfig, type StageConfig } from '../config/stages'
 import { isBossStage } from '../config/gameplay'
-import type { UpgradeLevels } from '../../services/shopService'
-import { generateRunModifierOffer } from './runModifierSystem'
 
 export type ProgressionResult = {
   enterShop: boolean
@@ -65,17 +63,4 @@ export function evaluateStageProgression(
   }
 }
 
-export function createShopRunModifierOffer(input: {
-  runId: string
-  runSeed: string
-  stageNumber: number
-  upgradeLevels: UpgradeLevels
-}) {
-  return generateRunModifierOffer({
-    runId: input.runId,
-    stageNumber: input.stageNumber,
-    runSeed: input.runSeed,
-    upgradeLevels: input.upgradeLevels
-  })
-}
 

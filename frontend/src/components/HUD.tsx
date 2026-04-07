@@ -21,64 +21,75 @@ export function HUD({
 }: HUDProps) {
   return (
     <div className="mb-3 px-1 pt-1 pb-0">
-      <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-lg border border-slate-700/50 bg-slate-950/90 px-3 py-2 shadow-[0_0_20px_rgba(0,0,0,0.4)] backdrop-blur">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-1.5 rounded-md border border-amber-500/25 bg-amber-500/10 px-2.5 py-1">
-            <span className="text-sm leading-none">⭐</span>
-            <div className="flex flex-col leading-none">
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-amber-500/70">Score</span>
-              <span className="text-sm font-bold text-amber-300">{score.toLocaleString()}</span>
+      <div className="ui-shell mx-auto flex w-full max-w-5xl flex-col gap-2 rounded-[24px] px-3 py-3 sm:px-4 sm:py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="ui-chip min-w-[100px] px-3 py-2">
+              <span className="text-base leading-none">✦</span>
+              <div className="flex flex-col leading-none">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.26em] text-amber-100/60">Score</span>
+                <span className="text-sm font-bold text-amber-200 sm:text-base">{score.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="ui-chip min-w-[92px] px-3 py-2">
+              <span className="text-base leading-none">❤</span>
+              <div className="flex flex-col leading-none">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.26em] text-rose-100/60">Vidas</span>
+                <span className="text-sm font-bold text-rose-200 sm:text-base">{lives}</span>
+              </div>
+            </div>
+
+            <div className="ui-chip min-w-[92px] px-3 py-2">
+              <span className="text-base leading-none">⚡</span>
+              <div className="flex flex-col leading-none">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.26em] text-cyan-100/60">Fase</span>
+                <span className="text-sm font-bold text-cyan-100 sm:text-base">{stage}</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 rounded-md border border-rose-500/25 bg-rose-500/10 px-2.5 py-1">
-            <span className="text-sm leading-none">❤️</span>
-            <div className="flex flex-col leading-none">
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-rose-500/70">Vidas</span>
-              <span className="text-sm font-bold text-rose-300">{lives}</span>
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col items-end leading-none">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.26em] text-slate-400">Recorde</span>
+              <span className="text-sm font-bold text-slate-100">{highScore.toLocaleString()}</span>
             </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 rounded-md border border-cyan-500/25 bg-cyan-500/10 px-2.5 py-1">
-            <span className="text-sm leading-none">⚡</span>
-            <div className="flex flex-col leading-none">
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-cyan-500/70">Fase</span>
-              <span className="text-sm font-bold text-cyan-300">{stage}</span>
-            </div>
+            {statusLabel ? (
+              <span className="ui-chip px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-indigo-100">
+                {statusLabel}
+              </span>
+            ) : null}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex flex-col items-end leading-none">
-            <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">Recorde</span>
-            <span className="text-xs font-bold text-slate-300">{highScore.toLocaleString()}</span>
+        {typeof bossHealth === 'number' && typeof bossMaxHealth === 'number' && bossMaxHealth > 0 ? (
+          <div className="ui-shell rounded-[20px] px-3 py-3 text-xs text-orange-100 sm:px-4">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-orange-300">Boss ativo</p>
+                <p className="mt-1 text-sm font-semibold text-slate-50">
+                  {bossHealth.toLocaleString()} / {bossMaxHealth.toLocaleString()}
+                </p>
+              </div>
+              <p className="rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-orange-200">
+                Resistência crítica
+              </p>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-slate-900/90">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-emerald-300 transition-[width] duration-150"
+                style={{ width: `${Math.max(0, Math.min(100, (bossHealth / bossMaxHealth) * 100))}%` }}
+              />
+            </div>
           </div>
-          {statusLabel ? (
-            <span className="rounded-full border border-indigo-500/40 bg-indigo-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-indigo-300">
-              {statusLabel}
-            </span>
-          ) : null}
-        </div>
+        ) : null}
+
+        {captionsEnabled ? (
+          <p className="mx-auto w-full max-w-5xl text-center text-[10px] tracking-[0.22em] text-slate-400">
+            ← → mover &nbsp;·&nbsp; Espaço atirar &nbsp;·&nbsp; P pausar
+          </p>
+        ) : null}
       </div>
-
-      {typeof bossHealth === 'number' && typeof bossMaxHealth === 'number' && bossMaxHealth > 0 ? (
-        <div className="mx-auto mt-1.5 w-full max-w-3xl rounded-md border border-orange-400/30 bg-slate-950/90 px-3 py-2 text-xs text-orange-200">
-          <div className="mb-1 flex items-center justify-between gap-3">
-            <p className="font-bold uppercase tracking-[0.24em] text-orange-400">⚠ Boss</p>
-            <p className="font-medium text-orange-200">{bossHealth}/{bossMaxHealth}</p>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-yellow-300 transition-[width] duration-150"
-              style={{ width: `${Math.max(0, Math.min(100, (bossHealth / bossMaxHealth) * 100))}%` }}
-            />
-          </div>
-        </div>
-      ) : null}
-
-      {captionsEnabled ? (
-        <p className="mx-auto mt-1 w-full max-w-3xl text-center text-[10px] text-slate-600">← → mover &nbsp;·&nbsp; Espaço atirar &nbsp;·&nbsp; P pausar</p>
-      ) : null}
     </div>
   )
 }

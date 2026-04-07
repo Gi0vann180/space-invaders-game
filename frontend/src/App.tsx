@@ -19,7 +19,6 @@ import { setTelemetryConsent } from './lib/telemetry'
 import { getPersistedProgressProfile, resolveInterruptedRunSnapshot } from './services/shopPersistenceService'
 import { loadSettings, saveSettings } from './services/settingsService'
 import { EMPTY_UPGRADE_LEVELS, listActiveUpgrades, type UpgradeLevels } from './services/shopService'
-import { applyRunModifierSelection, type RunModifierId } from './game/systems/runModifierSystem'
 import { isBossStage } from './game/config/gameplay'
 import { gameStore } from './state/gameStore'
 import { settingsStore, type GameSettings } from './state/settingsStore'
@@ -180,11 +179,17 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white flex items-center justify-center ${
+      className={`relative isolate min-h-screen overflow-hidden text-white ${
         settings.highContrast ? 'high-contrast' : ''
       }`}
     >
-      <div className="w-full max-w-5xl p-4">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 opacity-90">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(103,232,249,0.16),transparent_28%),radial-gradient(circle_at_80%_18%,rgba(167,139,250,0.14),transparent_24%),linear-gradient(180deg,rgba(2,6,23,0.16),rgba(2,6,23,0.72))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:72px_72px] opacity-35 [mask-image:linear-gradient(180deg,rgba(0,0,0,0.9),transparent_82%)]" />
+      </div>
+
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-3 py-4 sm:px-4 lg:px-6">
+        <div className="w-full">
         {(gameState.status === 'idle' || gameState.status === 'game-over') ? (
           <CampaignMap
             highestUnlockedStage={gameState.progressionProfile.highestUnlockedStage}
@@ -194,11 +199,22 @@ export default function App() {
           />
         ) : null}
 
-        <div className="bg-slate-900/60 rounded-2xl border border-slate-700/70 p-4 shadow-[0_25px_80px_rgba(15,23,42,0.55)]">
-          <div className="mb-3 flex items-center justify-between">
-            <h1 className="text-xl font-bold uppercase tracking-widest text-slate-100">Space Invaders</h1>
+        <div className="ui-shell-strong relative overflow-hidden rounded-[28px] p-3 sm:p-4 lg:p-5">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3 px-1 pt-1">
+            <div>
+              <p className="ui-chip mb-2 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-cyan-100/90">
+                Futuristic Arcade
+              </p>
+              <h1 className="ui-display text-[1.2rem] font-bold uppercase tracking-[0.26em] text-slate-50 sm:text-[1.35rem]">
+                Space Invaders
+              </h1>
+              <p className="mt-1 max-w-xl text-xs leading-relaxed text-slate-300 sm:text-sm">
+                Campanha, builds e chefes em uma interface limpa, mais cinematográfica e pronta para mobile.
+              </p>
+            </div>
             <button
-              className="rounded-md bg-slate-700 px-3 py-1.5 text-sm font-medium hover:bg-slate-600"
+              className="ui-button-secondary rounded-full px-4 py-2 text-sm font-semibold"
               onClick={() => setIsSettingsOpen(true)}
               type="button"
             >
@@ -221,8 +237,9 @@ export default function App() {
                 : gameState.status
             }
           />
-          <div className="relative overflow-hidden rounded-2xl border border-slate-700/70 bg-black shadow-[0_0_60px_rgba(14,165,233,0.12)]">
-            <canvas ref={canvasRef} width={800} height={480} className="w-full h-auto rounded-2xl bg-black" />
+          <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-black shadow-[0_0_80px_rgba(14,165,233,0.16)]">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(103,232,249,0.08),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.03),transparent_18%)]" />
+            <canvas ref={canvasRef} width={800} height={480} className="relative z-0 h-auto w-full bg-black" />
             <GameOverlay
               status={gameState.status}
               activePowerUps={gameState.activePowerUps}
@@ -242,56 +259,42 @@ export default function App() {
               onResumeInterruptedRun={handleResumeInterruptedRun}
               onRestartInterruptedRun={handleRestartInterruptedRun}
             />
-            {gameState.status === 'shop' ? (
-              <ShopScreen
-                score={gameState.score}
-                lives={gameState.lives}
-                upgradeLevels={upgradeLevels}
-                runModifierOffer={gameState.runModifierOffer}
-                onConfirmClick={handleShopConfirmClick}
-                onSelectRunModifier={(modifierId) => {
-                  const nextUpgradeLevels = applyRunModifierSelection(upgradeLevels, modifierId as RunModifierId)
-                  setUpgradeLevels(nextUpgradeLevels)
-                  gameStore.setState({
-                    upgradeLevels: nextUpgradeLevels,
-                    activeUpgrades: listActiveUpgrades(nextUpgradeLevels),
-                    runModifierOffer: gameState.runModifierOffer
-                      ? {
-                          ...gameState.runModifierOffer,
-                          selectedModifierId: modifierId
-                        }
-                      : null
-                  })
-                }}
-                onPurchase={(nextScore, nextUpgradeLevels) => {
-                  setUpgradeLevels(nextUpgradeLevels)
-                  gameStore.setState({
-                    score: nextScore,
-                    upgradeLevels: nextUpgradeLevels,
-                    activeUpgrades: listActiveUpgrades(nextUpgradeLevels)
-                  })
-                }}
-                onPurchaseExtraLife={(nextScore, nextLives) => {
-                  gameStore.setState({
-                    score: nextScore,
-                    lives: nextLives
-                  })
-                }}
-                onContinue={() => {
-                  primeAudioFromGesture()
-                  setShowCompletionOverlay(false)
-                  continueToNextStage(gameStore.getState().upgradeLevels)
-                }}
-              />
-            ) : null}
-            <SettingsPanel
-              isOpen={isSettingsOpen}
-              onChange={handleSettingsChange}
-              onClose={() => setIsSettingsOpen(false)}
-              settings={settings}
-            />
           </div>
         </div>
+        {gameState.status === 'shop' ? (
+          <ShopScreen
+            score={gameState.score}
+            lives={gameState.lives}
+            upgradeLevels={upgradeLevels}
+            onConfirmClick={handleShopConfirmClick}
+            onPurchase={(nextScore, nextUpgradeLevels) => {
+              setUpgradeLevels(nextUpgradeLevels)
+              gameStore.setState({
+                score: nextScore,
+                upgradeLevels: nextUpgradeLevels,
+                activeUpgrades: listActiveUpgrades(nextUpgradeLevels)
+              })
+            }}
+            onPurchaseExtraLife={(nextScore, nextLives) => {
+              gameStore.setState({
+                score: nextScore,
+                lives: nextLives
+              })
+            }}
+            onContinue={() => {
+              primeAudioFromGesture()
+              setShowCompletionOverlay(false)
+              continueToNextStage(gameStore.getState().upgradeLevels)
+            }}
+          />
+        ) : null}
+        <SettingsPanel
+          isOpen={isSettingsOpen}
+          onChange={handleSettingsChange}
+          onClose={() => setIsSettingsOpen(false)}
+          settings={settings}
+        />
+      </div>
       </div>
     </div>
   )
